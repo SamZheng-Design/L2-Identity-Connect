@@ -263,7 +263,7 @@ function navDark(t: ReturnType<typeof T>): string {
         <span class="font-brand" style="font-weight:700;font-size:14px;color:rgba(255,255,255,0.9);letter-spacing:.5px;">MICRO CONNECT</span>
       </a>
       <div style="display:flex;align-items:center;gap:6px;">
-        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);"><i class="fas fa-id-card" style="margin-right:4px;color:#93C5FD;"></i>${t.nav.title}</span>
+        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);"><i class="fas fa-id-card" style="margin-right:4px;color:var(--brand-light);"></i>${t.nav.title}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <a href="?lang=${t.nav.langToggle}" class="btn-ghost-dark">${t.nav.langLabel}</a>
@@ -280,7 +280,7 @@ function navLight(t: ReturnType<typeof T>, lang: string): string {
       <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
         ${LOGO}
         <span class="font-brand" style="font-weight:700;font-size:14px;color:#1d1d1f;letter-spacing:.5px;">MICRO CONNECT</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:rgba(59,130,246,0.08);font-size:11px;font-weight:600;color:#3B82F6;">
+        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:rgba(93,196,179,0.1);font-size:11px;font-weight:600;color:#3D8F83;">
           <i class="fas fa-id-card" style="font-size:10px;"></i>${t.nav.title}
         </span>
       </a>
@@ -338,7 +338,7 @@ app.get('/', (c) => {
 
         <!-- Hero Text -->
         <div style="text-align:center;margin-bottom:40px;animation:slide-up .8s var(--ease-out-expo) forwards;">
-          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.15);margin-bottom:24px;">
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(93,196,179,0.12);border:1px solid rgba(93,196,179,0.2);margin-bottom:24px;">
             <div style="width:6px;height:6px;border-radius:50%;background:#34c759;animation:pulse-dot 2s infinite;"></div>
             <span style="font-size:12px;color:rgba(255,255,255,0.55);font-weight:500;">${zh ? '滴灌通平台 · 统一入口' : 'Micro Connect · Unified Entry'}</span>
           </div>
@@ -378,7 +378,7 @@ app.get('/', (c) => {
           </div>
 
           <!-- Submit -->
-          <button class="btn-primary" style="width:100%;padding:16px;box-shadow:0 0 24px rgba(59,130,246,0.3),0 4px 16px rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);" onclick="doSubmit()" id="btn-submit">
+          <button class="btn-primary" style="width:100%;padding:16px;box-shadow:0 0 24px rgba(93,196,179,0.3),0 4px 16px rgba(93,196,179,0.2);border:1px solid rgba(93,196,179,0.3);" onclick="doSubmit()" id="btn-submit">
             ${t.auth.loginBtn}
           </button>
 
@@ -390,7 +390,7 @@ app.get('/', (c) => {
         <!-- Demo Hint -->
         <div style="margin-top:24px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;animation:fade-in 1s .5s both;">
           <p style="font-size:12px;color:rgba(255,255,255,0.28);line-height:1.7;">
-            <i class="fas fa-flask" style="color:rgba(59,130,246,0.5);margin-right:6px;"></i>
+            <i class="fas fa-flask" style="color:rgba(93,196,179,0.6);margin-right:6px;"></i>
             <strong style="color:rgba(255,255,255,0.45);">Demo</strong>&nbsp;
             ${zh ? '验证码: 123456 &nbsp;|&nbsp; 手机: 13800001234 &nbsp;|&nbsp; 邮箱: investor@fund.com / demo123' : 'Code: 123456 &nbsp;|&nbsp; Phone: 13800001234 &nbsp;|&nbsp; Email: investor@fund.com / demo123'}
           </p>
@@ -537,7 +537,7 @@ app.get('/dashboard', (c) => {
     <!-- Identity Cards -->
     <div class="reveal stagger-1">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#DBEAFE,#3B82F6);"><i class="fas fa-fingerprint" style="font-size:14px;color:#fff;"></i></div>
+        <div class="section-icon" style="background:linear-gradient(135deg,#b2e8de,#5DC4B3);"><i class="fas fa-fingerprint" style="font-size:14px;color:#fff;"></i></div>
         <h2 style="font-size:18px;font-weight:700;color:#1d1d1f;">${t.dashboard.identitySection}</h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:40px;" id="identity-cards"></div>
@@ -705,7 +705,7 @@ app.get('/entity-verify', (c) => {
   <main style="max-width:560px;margin:0 auto;padding:32px 20px 0;">
     <!-- Breadcrumb -->
     <div class="reveal" style="margin-bottom:28px;">
-      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#3B82F6;text-decoration:none;font-weight:500;transition:opacity .2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#3D8F83;text-decoration:none;font-weight:500;transition:opacity .2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
         <i class="fas fa-arrow-left"></i>${t.entity.backToDash}
       </a>
     </div>
@@ -749,9 +749,9 @@ app.get('/entity-verify', (c) => {
     </div>
 
     <!-- Hint -->
-    <div class="reveal stagger-2" style="margin-top:20px;padding:14px 18px;background:rgba(59,130,246,0.03);border:1px solid rgba(59,130,246,0.08);border-radius:14px;">
+    <div class="reveal stagger-2" style="margin-top:20px;padding:14px 18px;background:rgba(93,196,179,0.04);border:1px solid rgba(93,196,179,0.1);border-radius:14px;">
       <p style="font-size:12px;color:#86868b;display:flex;align-items:center;gap:6px;">
-        <i class="fas fa-flask" style="color:#3B82F6;"></i>
+        <i class="fas fa-flask" style="color:#5DC4B3;"></i>
         ${zh ? 'Demo 阶段提交即通过，无需真实材料。' : 'Demo: auto-approve on submit, no real documents needed.'}
       </p>
     </div>
