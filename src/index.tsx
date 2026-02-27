@@ -54,6 +54,98 @@ type IdentityRole = 'initiator' | 'participant' | 'organization'
 interface Identity { role: IdentityRole; unlockedAt: string; status: 'active' | 'pending' | 'suspended' }
 interface EntityAuth { entityId: string; entityName: string; role: string; verifiedAt: string }
 
+// ─── Deal / Project Types ───
+type DealStatus = 'draft' | 'submitted' | 'under_review' | 'approved' | 'live' | 'completed' | 'rejected'
+type ParticipationStatus = 'watching' | 'evaluating' | 'committed' | 'signed' | 'settled' | 'exited'
+
+interface Deal {
+  id: string
+  title: string
+  entityName: string       // 关联的公司/品牌
+  industry: string         // 行业
+  amount: string           // 融资金额
+  status: DealStatus       // 项目状态
+  createdAt: string
+  updatedAt: string
+  initiatorId: string      // 发起人 userId
+  monthlyRevenue?: string  // 月均收入
+  term?: string            // 期限
+  progress?: number        // 进度百分比 0-100
+}
+
+interface Participation {
+  id: string
+  dealId: string
+  dealTitle: string
+  entityName: string
+  industry: string
+  amount: string
+  status: ParticipationStatus
+  joinedAt: string
+  updatedAt: string
+  participantId: string
+  committedAmount?: string   // 承诺投资金额
+  expectedReturn?: string    // 预期回报率
+  riskScore?: string         // 风控评分
+}
+
+// ─── Mock Deals Data ───
+const deals: Deal[] = [
+  {
+    id: 'd-001', title: 'ABC 餐饮连锁 — 华南区扩张融资', entityName: 'ABC 餐饮连锁',
+    industry: '餐饮', amount: '500万', status: 'live', createdAt: '2026-01-25', updatedAt: '2026-02-20',
+    initiatorId: 'u-001', monthlyRevenue: '120万/月', term: '24个月', progress: 75
+  },
+  {
+    id: 'd-002', title: 'ABC 餐饮连锁 — 供应链升级融资', entityName: 'ABC 餐饮连锁',
+    industry: '餐饮', amount: '200万', status: 'under_review', createdAt: '2026-02-15', updatedAt: '2026-02-25',
+    initiatorId: 'u-001', monthlyRevenue: '120万/月', term: '12个月', progress: 40
+  },
+  {
+    id: 'd-003', title: 'ABC 餐饮连锁 — 新品牌孵化', entityName: 'ABC 餐饮连锁',
+    industry: '餐饮', amount: '800万', status: 'draft', createdAt: '2026-02-26', updatedAt: '2026-02-26',
+    initiatorId: 'u-001', term: '36个月', progress: 10
+  },
+  {
+    id: 'd-010', title: '鲜茶工坊 — 全国加盟体系融资', entityName: '鲜茶工坊',
+    industry: '茶饮', amount: '1200万', status: 'live', createdAt: '2026-01-10', updatedAt: '2026-02-18',
+    initiatorId: 'u-003', monthlyRevenue: '280万/月', term: '36个月', progress: 60
+  },
+  {
+    id: 'd-011', title: '快剪工坊 — 社区店扩张融资', entityName: '快剪工坊',
+    industry: '美业', amount: '300万', status: 'approved', createdAt: '2026-02-01', updatedAt: '2026-02-22',
+    initiatorId: 'u-003', monthlyRevenue: '45万/月', term: '18个月', progress: 55
+  }
+]
+
+const participations: Participation[] = [
+  {
+    id: 'p-001', dealId: 'd-010', dealTitle: '鲜茶工坊 — 全国加盟体系融资', entityName: '鲜茶工坊',
+    industry: '茶饮', amount: '1200万', status: 'committed', joinedAt: '2026-01-20', updatedAt: '2026-02-18',
+    participantId: 'u-001', committedAmount: '100万', expectedReturn: '12.5%', riskScore: 'A'
+  },
+  {
+    id: 'p-002', dealId: 'd-011', dealTitle: '快剪工坊 — 社区店扩张融资', entityName: '快剪工坊',
+    industry: '美业', amount: '300万', status: 'evaluating', joinedAt: '2026-02-10', updatedAt: '2026-02-22',
+    participantId: 'u-001', riskScore: 'B+'
+  },
+  {
+    id: 'p-010', dealId: 'd-001', dealTitle: 'ABC 餐饮连锁 — 华南区扩张融资', entityName: 'ABC 餐饮连锁',
+    industry: '餐饮', amount: '500万', status: 'signed', joinedAt: '2026-02-01', updatedAt: '2026-02-20',
+    participantId: 'u-002', committedAmount: '200万', expectedReturn: '15%', riskScore: 'A-'
+  },
+  {
+    id: 'p-011', dealId: 'd-010', dealTitle: '鲜茶工坊 — 全国加盟体系融资', entityName: '鲜茶工坊',
+    industry: '茶饮', amount: '1200万', status: 'committed', joinedAt: '2026-01-15', updatedAt: '2026-02-10',
+    participantId: 'u-002', committedAmount: '500万', expectedReturn: '11%', riskScore: 'A'
+  },
+  {
+    id: 'p-012', dealId: 'd-011', dealTitle: '快剪工坊 — 社区店扩张融资', entityName: '快剪工坊',
+    industry: '美业', amount: '300万', status: 'watching', joinedAt: '2026-02-20', updatedAt: '2026-02-22',
+    participantId: 'u-002'
+  }
+]
+
 const users: User[] = [
   {
     id: 'u-001', phone: '13800001234', name: '张三',
@@ -180,6 +272,22 @@ app.get('/api/entity/list', (c) => {
   const user = getUserFromToken(c.req.header('Authorization'))
   if (!user) return c.json({ success: false, message: '未授权' }, 401)
   return c.json({ success: true, entities: user.entities })
+})
+
+// GET /api/deals/initiated — 我发起的机会
+app.get('/api/deals/initiated', (c) => {
+  const user = getUserFromToken(c.req.header('Authorization'))
+  if (!user) return c.json({ success: false, message: '未授权' }, 401)
+  const myDeals = deals.filter(d => d.initiatorId === user.id)
+  return c.json({ success: true, deals: myDeals })
+})
+
+// GET /api/deals/participated — 我参与的机会
+app.get('/api/deals/participated', (c) => {
+  const user = getUserFromToken(c.req.header('Authorization'))
+  if (!user) return c.json({ success: false, message: '未授权' }, 401)
+  const myParticipations = participations.filter(p => p.participantId === user.id)
+  return c.json({ success: true, participations: myParticipations })
 })
 
 
@@ -597,8 +705,32 @@ app.get('/dashboard', (c) => {
       </div>
     </div>
 
+    <!-- My Initiated Deals Section -->
+    <div class="reveal stagger-2" id="initiated-section" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 style="font-size:16px;font-weight:600;color:var(--text-title);">
+          <i class="fas fa-rocket" style="color:#F59E0B;margin-right:8px;"></i>
+          ${t('我发起的机会', 'Deals I Originated')}
+        </h2>
+        <span id="initiated-count" style="font-size:12px;color:var(--text-tertiary);background:var(--bg-divider);padding:2px 10px;border-radius:20px;"></span>
+      </div>
+      <div id="initiated-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px;"></div>
+    </div>
+
+    <!-- My Participated Deals Section -->
+    <div class="reveal stagger-3" id="participated-section" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 style="font-size:16px;font-weight:600;color:var(--text-title);">
+          <i class="fas fa-hand-holding-usd" style="color:#10B981;margin-right:8px;"></i>
+          ${t('我参与的机会', 'Deals I Participated In')}
+        </h2>
+        <span id="participated-count" style="font-size:12px;color:var(--text-tertiary);background:var(--bg-divider);padding:2px 10px;border-radius:20px;"></span>
+      </div>
+      <div id="participated-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px;"></div>
+    </div>
+
     <!-- Entity Section -->
-    <div class="reveal stagger-2">
+    <div class="reveal stagger-4">
       <h2 style="font-size:16px;font-weight:600;color:var(--text-title);margin-bottom:16px;">
         <i class="fas fa-building" style="color:var(--identity);margin-right:8px;"></i>
         ${t('已认证主体', 'Verified Entities')}
@@ -610,7 +742,7 @@ app.get('/dashboard', (c) => {
     </div>
 
     <!-- Quick Navigation (9 Connects) -->
-    <div class="reveal stagger-3" style="margin-top:40px;">
+    <div class="reveal stagger-5" style="margin-top:40px;">
       <h2 style="font-size:16px;font-weight:600;color:var(--text-title);margin-bottom:16px;">
         <i class="fas fa-th" style="color:var(--identity);margin-right:8px;"></i>
         ${t('快捷导航', 'Quick Navigation')}
@@ -647,6 +779,7 @@ app.get('/dashboard', (c) => {
     renderIdentityCards(user);
     renderEntities(user);
     updateConnects(user);
+    loadDeals(user);
   })();
 
   function renderIdentityCards(user) {
@@ -757,6 +890,119 @@ app.get('/dashboard', (c) => {
       return;
     }
     showToast(tt('即将跳转到' + name + '（独立应用开发中）', 'Redirecting to ' + name + ' (coming soon)'), 'info');
+  }
+
+  // ─── Deal Status Maps ───
+  var DEAL_STATUS = {
+    draft:        { zh:'草稿', en:'Draft', color:'#86868b', bg:'#f5f5f7', icon:'fa-pencil-alt' },
+    submitted:    { zh:'已提交', en:'Submitted', color:'#32ade6', bg:'#eff6ff', icon:'fa-paper-plane' },
+    under_review: { zh:'审核中', en:'Under Review', color:'#ff9f0a', bg:'#fffbeb', icon:'fa-clock' },
+    approved:     { zh:'已通过', en:'Approved', color:'#34c759', bg:'#f0fdf4', icon:'fa-check-circle' },
+    live:         { zh:'募集中', en:'Live', color:'#3B82F6', bg:'#DBEAFE', icon:'fa-broadcast-tower' },
+    completed:    { zh:'已完成', en:'Completed', color:'#6e6e73', bg:'#f5f5f7', icon:'fa-flag-checkered' },
+    rejected:     { zh:'已拒绝', en:'Rejected', color:'#ff375f', bg:'#fef2f2', icon:'fa-times-circle' }
+  };
+  var PART_STATUS = {
+    watching:   { zh:'关注中', en:'Watching', color:'#86868b', bg:'#f5f5f7', icon:'fa-eye' },
+    evaluating: { zh:'评估中', en:'Evaluating', color:'#ff9f0a', bg:'#fffbeb', icon:'fa-search' },
+    committed:  { zh:'已承诺', en:'Committed', color:'#3B82F6', bg:'#DBEAFE', icon:'fa-handshake' },
+    signed:     { zh:'已签约', en:'Signed', color:'#34c759', bg:'#f0fdf4', icon:'fa-file-signature' },
+    settled:    { zh:'已结算', en:'Settled', color:'#6366F1', bg:'#eef2ff', icon:'fa-calculator' },
+    exited:     { zh:'已退出', en:'Exited', color:'#6e6e73', bg:'#f5f5f7', icon:'fa-door-open' }
+  };
+
+  function statusBadge(statusMap, status) {
+    var s = statusMap[status] || { zh:status, en:status, color:'#86868b', bg:'#f5f5f7', icon:'fa-circle' };
+    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;color:' + s.color + ';background:' + s.bg + ';"><i class="fas ' + s.icon + '" style="font-size:10px;"></i>' + tt(s.zh, s.en) + '</span>';
+  }
+
+  function progressBar(pct) {
+    if (!pct && pct !== 0) return '';
+    return '<div style="width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-top:8px;"><div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#3B82F6,#10B981);border-radius:2px;transition:width 0.5s;"></div></div>';
+  }
+
+  async function loadDeals(user) {
+    var hasInitiator = user.identities.some(function(i) { return i.role === 'initiator'; });
+    var hasParticipant = user.identities.some(function(i) { return i.role === 'participant'; });
+    var hasOrg = user.identities.some(function(i) { return i.role === 'organization'; });
+
+    // Load initiated deals
+    if (hasInitiator || hasOrg) {
+      var res1 = await api('/api/deals/initiated');
+      if (res1.success && res1.deals.length > 0) {
+        document.getElementById('initiated-section').style.display = 'block';
+        document.getElementById('initiated-count').textContent = res1.deals.length + tt(' 个项目', ' deals');
+        renderInitiatedDeals(res1.deals);
+      }
+    }
+
+    // Load participated deals
+    if (hasParticipant || hasOrg) {
+      var res2 = await api('/api/deals/participated');
+      if (res2.success && res2.participations.length > 0) {
+        document.getElementById('participated-section').style.display = 'block';
+        document.getElementById('participated-count').textContent = res2.participations.length + tt(' 个项目', ' deals');
+        renderParticipatedDeals(res2.participations);
+      }
+    }
+  }
+
+  function renderInitiatedDeals(dealsList) {
+    var container = document.getElementById('initiated-list');
+    container.innerHTML = dealsList.map(function(d) {
+      return '<div class="card-hover" style="padding:20px 24px;">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">' +
+          '<div style="flex:1;min-width:200px;">' +
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+              '<h3 style="font-size:15px;font-weight:600;color:var(--text-title);margin:0;">' + d.title + '</h3>' +
+              statusBadge(DEAL_STATUS, d.status) +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--text-secondary);">' +
+              '<span><i class="fas fa-tag" style="margin-right:4px;color:var(--text-tertiary);"></i>' + d.industry + '</span>' +
+              '<span><i class="fas fa-yen-sign" style="margin-right:4px;color:var(--text-tertiary);"></i>' + tt('融资额 ','Amount ') + d.amount + '</span>' +
+              (d.monthlyRevenue ? '<span><i class="fas fa-chart-bar" style="margin-right:4px;color:var(--text-tertiary);"></i>' + tt('月收入 ','Revenue ') + d.monthlyRevenue + '</span>' : '') +
+              (d.term ? '<span><i class="fas fa-calendar" style="margin-right:4px;color:var(--text-tertiary);"></i>' + d.term + '</span>' : '') +
+            '</div>' +
+            progressBar(d.progress) +
+          '</div>' +
+          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">' +
+            '<span style="font-size:11px;color:var(--text-placeholder);">' + tt('更新于 ','Updated ') + d.updatedAt + '</span>' +
+            '<button class="btn-primary" style="padding:6px 14px;font-size:11px;border-radius:8px;" onclick="showToast(\\'' + tt('即将跳转到发起通查看详情（开发中）','Redirecting to Originate Connect (coming soon)') + '\\', \\'info\\')">' +
+              '<i class="fas fa-external-link-alt" style="margin-right:4px;"></i>' + tt('查看详情','View Details') +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderParticipatedDeals(partList) {
+    var container = document.getElementById('participated-list');
+    container.innerHTML = partList.map(function(p) {
+      return '<div class="card-hover" style="padding:20px 24px;">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">' +
+          '<div style="flex:1;min-width:200px;">' +
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+              '<h3 style="font-size:15px;font-weight:600;color:var(--text-title);margin:0;">' + p.dealTitle + '</h3>' +
+              statusBadge(PART_STATUS, p.status) +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--text-secondary);">' +
+              '<span><i class="fas fa-tag" style="margin-right:4px;color:var(--text-tertiary);"></i>' + p.industry + '</span>' +
+              '<span><i class="fas fa-yen-sign" style="margin-right:4px;color:var(--text-tertiary);"></i>' + tt('总额 ','Total ') + p.amount + '</span>' +
+              (p.committedAmount ? '<span><i class="fas fa-coins" style="margin-right:4px;color:#F59E0B;"></i>' + tt('承诺 ','Committed ') + p.committedAmount + '</span>' : '') +
+              (p.expectedReturn ? '<span><i class="fas fa-percentage" style="margin-right:4px;color:#10B981;"></i>' + tt('预期回报 ','Return ') + p.expectedReturn + '</span>' : '') +
+              (p.riskScore ? '<span><i class="fas fa-shield-alt" style="margin-right:4px;color:#6366F1;"></i>' + tt('风控评分 ','Risk ') + p.riskScore + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">' +
+            '<span style="font-size:11px;color:var(--text-placeholder);">' + tt('更新于 ','Updated ') + p.updatedAt + '</span>' +
+            '<button class="btn-primary" style="padding:6px 14px;font-size:11px;border-radius:8px;background:#10B981;" onclick="showToast(\\'' + tt('即将跳转到参与通查看详情（开发中）','Redirecting to Deal Connect (coming soon)') + '\\', \\'info\\')">' +
+              '<i class="fas fa-external-link-alt" style="margin-right:4px;"></i>' + tt('查看详情','View Details') +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
   </script>`
 
