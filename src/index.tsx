@@ -366,7 +366,7 @@ app.get('/', (c) => {
         ${t('收入分成投资的基础设施级平台', 'Infrastructure-Grade RBF Investment Platform')}
       </p>
       <p style="font-size:13px;color:var(--text-tertiary);background:rgba(219,234,254,0.4);display:inline-block;padding:6px 16px;border-radius:20px;">
-        ${t('📚 办借书证 — 选择你的身份，开启投融资之旅', '📚 Get your library card — Choose your identity, start your journey')}
+        ${t('📚 办借书证 — 选择你的角色，发起或参与投资机会', '📚 Get your library card — Choose your role, originate or participate in deals')}
       </p>
     </div>
 
@@ -581,7 +581,7 @@ app.get('/dashboard', (c) => {
           ${t('你好', 'Hello')}
         </h1>
         <p style="font-size:14px;color:var(--text-secondary);" id="sub-greeting">
-          ${t('管理你的身份，开启不同的工作流', 'Manage your identities, unlock different workflows')}
+          ${t('选择你的角色，发起或参与投资机会', 'Choose your role — originate or participate in investment deals')}
         </p>
       </div>
     </div>
@@ -590,7 +590,7 @@ app.get('/dashboard', (c) => {
     <div class="reveal stagger-1">
       <h2 style="font-size:16px;font-weight:600;color:var(--text-title);margin-bottom:16px;">
         <i class="fas fa-fingerprint" style="color:var(--identity);margin-right:8px;"></i>
-        ${t('功能身份', 'Functional Identities')}
+        ${t('我的身份', 'My Identities')}
       </h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:32px;" id="identity-cards">
         <!-- Rendered by JS -->
@@ -630,9 +630,9 @@ app.get('/dashboard', (c) => {
   // ─── Dashboard Logic ───
   const LANG = getLang();
   const IDENTITIES_META = {
-    initiator: { zh:'发起身份', en:'Initiator', icon:'fa-rocket', desc_zh:'上传经营数据，发起融资申请', desc_en:'Upload data, initiate financing', target_zh:'发起通', target_en:'Originate Connect', color:'#F59E0B' },
-    participant: { zh:'参与身份', en:'Participant', icon:'fa-search', desc_zh:'浏览投资项目，搭建评估筛子', desc_en:'Browse deals, build assessment sieves', target_zh:'参与通', target_en:'Deal Connect', color:'#10B981' },
-    organization: { zh:'机构身份', en:'Organization', icon:'fa-building', desc_zh:'机构级批量操作和自定义工作流', desc_en:'Institutional batch operations & custom workflows', target_zh:'全部通', target_en:'All Connects', color:'#6366F1' }
+    initiator: { zh:'发起机会', en:'Originate Deals', icon:'fa-rocket', desc_zh:'作为融资者，上传经营数据，发起融资机会', desc_en:'As a fundraiser, upload business data and originate financing deals', target_zh:'发起通', target_en:'Originate Connect', cta_zh:'发起融资机会', cta_en:'Originate Deals', color:'#F59E0B' },
+    participant: { zh:'参与机会', en:'Participate in Deals', icon:'fa-search', desc_zh:'作为投资者，浏览投资项目，评估并参与投资机会', desc_en:'As an investor, browse projects, assess and participate in investment deals', target_zh:'参与通', target_en:'Deal Connect', cta_zh:'参与投资机会', cta_en:'Participate in Deals', color:'#10B981' },
+    organization: { zh:'机构身份', en:'Organization', icon:'fa-building', desc_zh:'机构级权限，批量操作和自定义工作流', desc_en:'Institutional access with batch operations & custom workflows', target_zh:'全部通', target_en:'All Connects', cta_zh:'进入机构工作台', cta_en:'Enter Org Workspace', color:'#6366F1' }
   };
   const tt = (zh, en) => LANG === 'en' ? en : zh;
 
@@ -641,8 +641,8 @@ app.get('/dashboard', (c) => {
     const user = getUser();
     document.getElementById('greeting').textContent = tt('你好，', 'Hello, ') + user.name;
     document.getElementById('sub-greeting').textContent = tt(
-      '注册于 ' + user.createdAt + ' · 管理你的身份，开启不同的工作流',
-      'Registered ' + user.createdAt + ' · Manage your identities, unlock different workflows'
+      '注册于 ' + user.createdAt + ' · 选择你的角色，发起或参与投资机会',
+      'Registered ' + user.createdAt + ' · Choose your role — originate or participate in deals'
     );
     renderIdentityCards(user);
     renderEntities(user);
@@ -670,14 +670,14 @@ app.get('/dashboard', (c) => {
           '<div style="display:flex;align-items:center;justify-content:space-between;">' +
             '<span style="font-size:12px;color:var(--semantic-success);font-weight:500;"><i class="fas fa-check-circle" style="margin-right:4px;"></i>' + tt('已解锁','Unlocked') + ' · ' + identity.unlockedAt + '</span>' +
             '<button class="btn-primary" style="padding:8px 16px;font-size:12px;border-radius:10px;" onclick="enterConnect(\\'' + role + '\\')">' +
-              tt('进入' + meta.target_zh, 'Enter ' + meta.target_en) +
+              tt(meta.cta_zh || ('进入' + meta.target_zh), meta.cta_en || ('Enter ' + meta.target_en)) +
             '</button>' +
           '</div>'
           :
           '<div style="display:flex;align-items:center;justify-content:space-between;">' +
             '<span style="font-size:12px;color:var(--text-placeholder);">' + tt('未解锁','Not Unlocked') + '</span>' +
             '<button class="btn-primary" style="padding:8px 16px;font-size:12px;border-radius:10px;background:var(--text-tertiary);" onclick="unlockIdentity(\\'' + role + '\\')">' +
-              '<i class="fas fa-lock" style="margin-right:4px;"></i>' + tt('解锁身份','Unlock') +
+              '<i class="fas fa-lock" style="margin-right:4px;"></i>' + tt('解锁此角色','Unlock Role') +
             '</button>' +
           '</div>'
         ) +
@@ -753,7 +753,7 @@ app.get('/dashboard', (c) => {
     }
     const el = document.querySelector('[data-id="'+id+'"]');
     if (el && el.classList.contains('disabled')) {
-      showToast(tt('需先解锁对应身份才能访问 ' + name, 'Unlock required identity to access ' + name), 'error');
+      showToast(tt('需先解锁对应角色才能访问 ' + name, 'Unlock the required role to access ' + name), 'error');
       return;
     }
     showToast(tt('即将跳转到' + name + '（独立应用开发中）', 'Redirecting to ' + name + ' (coming soon)'), 'info');
