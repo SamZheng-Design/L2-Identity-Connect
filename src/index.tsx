@@ -292,46 +292,49 @@ function htmlShell(title: string, body: string, lang: string): string {
     }
   }
   </script>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link href="/static/style.css" rel="stylesheet">
 </head>
 <body style="background:var(--bg-page);min-height:100vh;">
-  <div id="toast" class="toast"></div>
-  ${body}
   <script>
-  // ─── Shared Utilities ───
-  function showToast(msg, type='info') {
-    const t = document.getElementById('toast');
+  // ─── Shared Utilities (must load before page content) ───
+  function showToast(msg, type) {
+    type = type || 'info';
+    var t = document.getElementById('toast');
+    if (!t) return;
     t.textContent = msg;
     t.className = 'toast ' + type + ' show';
-    setTimeout(() => { t.classList.remove('show'); }, 3000);
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
   }
   function getToken() { return localStorage.getItem('ic_token'); }
-  function getUser() { try { return JSON.parse(localStorage.getItem('ic_user') || 'null'); } catch { return null; } }
+  function getUser() { try { return JSON.parse(localStorage.getItem('ic_user') || 'null'); } catch(e) { return null; } }
   function setAuth(token, user) { localStorage.setItem('ic_token', token); localStorage.setItem('ic_user', JSON.stringify(user)); }
   function clearAuth() { localStorage.removeItem('ic_token'); localStorage.removeItem('ic_user'); }
   function doLogout() { clearAuth(); window.location.href = '/'; }
   function getLang() { return new URLSearchParams(window.location.search).get('lang') || 'zh'; }
-  async function api(path, opts={}) {
-    const token = getToken();
-    const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
-    const res = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
-    return res.json();
+  function api(path, opts) {
+    opts = opts || {};
+    var token = getToken();
+    var headers = Object.assign({ 'Content-Type': 'application/json' }, token ? { Authorization: 'Bearer ' + token } : {}, opts.headers || {});
+    return fetch(path, Object.assign({}, opts, { headers: headers })).then(function(res) { return res.json(); });
   }
-  // Navbar scroll effect
-  window.addEventListener('scroll', () => {
-    const nav = document.getElementById('navbar');
+  </script>
+  <div id="toast" class="toast"></div>
+  ${body}
+  <script>
+  // ─── Post-load: Navbar scroll + Reveal animations ───
+  window.addEventListener('scroll', function() {
+    var nav = document.getElementById('navbar');
     if (nav) nav.classList.toggle('scrolled', window.scrollY > 10);
   });
-  // Scroll reveal
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.reveal').forEach(el => {
-      new IntersectionObserver(([e]) => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); }
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.reveal').forEach(function(el) {
+      new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) { entries[0].target.classList.add('visible'); }
       }, { threshold: 0.15 }).observe(el);
     });
-    // Set nav username
-    const u = getUser();
-    const el = document.getElementById('nav-username');
+    var u = getUser();
+    var el = document.getElementById('nav-username');
     if (el && u) el.textContent = u.name;
   });
   </script>
