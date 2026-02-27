@@ -2,9 +2,8 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 // ═══════════════════════════════════════════════════════
-// 身份通 Identity Connect
-// MicroConnect Product Bible V3.0 — 严格对齐
-// 以人为单位的万能工作台 · 解锁身份 · 路由中枢
+// 身份通 Identity Connect — V2 Redesign
+// MicroConnect Product Bible V3.0 · Apple-Grade Visual
 // ═══════════════════════════════════════════════════════
 
 const app = new Hono()
@@ -38,7 +37,7 @@ function parseJWT(token: string): Record<string, unknown> | null {
   } catch { return null }
 }
 
-// ─── Data Models (Product Bible §6) ───
+// ─── Data Models ───
 interface User {
   id: string; phone?: string; email?: string; name: string; password?: string
   avatar?: string; identities: Identity[]; entities: EntityAuth[]; createdAt: string
@@ -82,10 +81,10 @@ function T(lang: string) {
     },
     auth: {
       welcome: zh ? '欢迎来到滴灌通' : 'Welcome to Micro Connect',
-      subtitle: zh ? '收入分成投资的基础设施级平台' : 'Infrastructure-Grade RBF Investment Platform',
-      libraryHint: zh ? '办借书证 — 选择你的身份，开启投融资之旅' : 'Get your library card — Choose your identity, start your journey',
-      phoneTab: zh ? '手机号登录' : 'Phone Login',
-      emailTab: zh ? '邮箱登录' : 'Email Login',
+      subtitle: zh ? '收入分成投资的基础设施级平台' : 'Infrastructure-Grade Revenue-Based Investment Platform',
+      libraryHint: zh ? '办借书证 — 选择你的身份，开启投融资之旅' : 'Get your library card — choose identity, start journey',
+      phoneTab: zh ? '手机号' : 'Phone',
+      emailTab: zh ? '邮箱' : 'Email',
       phonePlaceholder: zh ? '请输入手机号' : 'Enter phone number',
       codePlaceholder: zh ? '请输入验证码' : 'Enter verification code',
       getCode: zh ? '获取验证码' : 'Get Code',
@@ -111,7 +110,7 @@ function T(lang: string) {
     },
     identities: {
       initiator: { name: zh ? '发起身份' : 'Initiator', desc: zh ? '上传经营数据，发起融资申请' : 'Upload data, initiate financing', icon: 'fa-rocket', target: zh ? '发起通' : 'Originate Connect', cta: zh ? '进入发起通' : 'Enter Originate' },
-      participant: { name: zh ? '参与身份' : 'Participant', desc: zh ? '浏览投资项目，搭建评估筛子' : 'Browse deals, build assessment sieves', icon: 'fa-search', target: zh ? '参与通' : 'Deal Connect', cta: zh ? '进入参与通' : 'Enter Deal' },
+      participant: { name: zh ? '参与身份' : 'Participant', desc: zh ? '浏览投资项目，搭建评估筛子' : 'Browse deals, build assessment sieves', icon: 'fa-search-dollar', target: zh ? '参与通' : 'Deal Connect', cta: zh ? '进入参与通' : 'Enter Deal' },
       organization: { name: zh ? '机构身份' : 'Organization', desc: zh ? '机构级批量操作和自定义工作流' : 'Institutional batch operations & custom workflows', icon: 'fa-building', target: zh ? '全部通' : 'All Connects', cta: zh ? '进入机构工作台' : 'Enter Org Workspace' },
     },
     entity: {
@@ -148,7 +147,7 @@ function T(lang: string) {
 
 
 // ═══════════════════════════════════════════
-// API Routes (Product Bible §6.3)
+// API Routes
 // ═══════════════════════════════════════════
 app.post('/api/auth/verify-code', async (c) => {
   const { phone } = await c.req.json()
@@ -208,11 +207,25 @@ app.get('/api/entity/list', (c) => {
   return c.json({ success: true, entities: u.entities })
 })
 
+app.get('/api/deals/initiated', (c) => {
+  const u = getUserFromToken(c.req.header('Authorization'))
+  if (!u) return c.json({ success: false, message: '未授权' }, 401)
+  return c.json({ success: true, deals: [] })
+})
+
+app.get('/api/deals/participated', (c) => {
+  const u = getUserFromToken(c.req.header('Authorization'))
+  if (!u) return c.json({ success: false, message: '未授权' }, 401)
+  return c.json({ success: true, deals: [] })
+})
+
 
 // ═══════════════════════════════════════════
 // Shared Components
 // ═══════════════════════════════════════════
-const LOGO = `<svg width="32" height="32" viewBox="0 0 80 80"><defs><linearGradient id="gt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gt)"/><circle cx="36" cy="44" r="22" fill="url(#gb)" opacity="0.85"/></svg>`
+const LOGO = `<svg width="28" height="28" viewBox="0 0 80 80"><defs><linearGradient id="gt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gt)"/><circle cx="36" cy="44" r="22" fill="url(#gb)" opacity="0.85"/></svg>`
+
+const LOGO_LG = `<svg width="48" height="48" viewBox="0 0 80 80"><defs><linearGradient id="gtl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gbl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gtl)"/><circle cx="36" cy="44" r="22" fill="url(#gbl)" opacity="0.85"/></svg>`
 
 function shell(title: string, body: string, lang: string): string {
   return `<!DOCTYPE html>
@@ -221,7 +234,7 @@ function shell(title: string, body: string, lang: string): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
   <title>${title}</title>
-  <meta name="theme-color" content="#0a0f1e">
+  <meta name="theme-color" content="#0a1a17">
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -229,7 +242,7 @@ function shell(title: string, body: string, lang: string): string {
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <link href="/static/style.css" rel="stylesheet">
   <script>
-  function showToast(m,t){t=t||'info';var e=document.getElementById('toast');if(!e)return;e.textContent=m;e.className='toast '+t+' show';setTimeout(function(){e.classList.remove('show')},3500)}
+  function showToast(m,t){t=t||'info';var e=document.getElementById('toast');if(!e)return;e.textContent=m;e.className='toast '+t+' show';setTimeout(function(){e.classList.remove('show')},3000)}
   function getToken(){return localStorage.getItem('ic_token')}
   function getUser(){try{return JSON.parse(localStorage.getItem('ic_user')||'null')}catch(e){return null}}
   function setAuth(t,u){localStorage.setItem('ic_token',t);localStorage.setItem('ic_user',JSON.stringify(u))}
@@ -246,7 +259,7 @@ function shell(title: string, body: string, lang: string): string {
   window.addEventListener('scroll',function(){var n=document.getElementById('navbar');if(n)n.classList.toggle('scrolled',window.scrollY>10)});
   document.addEventListener('DOMContentLoaded',function(){
     document.querySelectorAll('.reveal').forEach(function(el){
-      new IntersectionObserver(function(e){if(e[0].isIntersecting){e[0].target.classList.add('visible')}},{threshold:0.15}).observe(el)
+      new IntersectionObserver(function(e){if(e[0].isIntersecting){e[0].target.classList.add('visible')}},{threshold:0.1}).observe(el)
     });
   });
   </script>
@@ -254,72 +267,9 @@ function shell(title: string, body: string, lang: string): string {
 </html>`
 }
 
-function navDark(t: ReturnType<typeof T>): string {
-  return `
-  <nav class="navbar-dark" id="navbar">
-    <div class="nav-inner">
-      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        ${LOGO}
-        <span class="font-brand" style="font-weight:700;font-size:14px;color:rgba(255,255,255,0.9);letter-spacing:.5px;">MICRO CONNECT</span>
-      </a>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);"><i class="fas fa-id-card" style="margin-right:4px;color:var(--brand-light);"></i>${t.nav.title}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <a href="?lang=${t.nav.langToggle}" class="btn-ghost-dark">${t.nav.langLabel}</a>
-        <a href="https://microconnect.com" class="btn-ghost-dark">${t.nav.backToMain}</a>
-      </div>
-    </div>
-  </nav>`
-}
-
-function navLight(t: ReturnType<typeof T>, lang: string): string {
-  return `
-  <nav class="navbar" id="navbar">
-    <div class="nav-inner">
-      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        ${LOGO}
-        <span class="font-brand" style="font-weight:700;font-size:14px;color:#1d1d1f;letter-spacing:.5px;">MICRO CONNECT</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:rgba(93,196,179,0.1);font-size:11px;font-weight:600;color:#3D8F83;">
-          <i class="fas fa-id-card" style="font-size:10px;"></i>${t.nav.title}
-        </span>
-      </a>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:6px 12px;font-size:12px;">${t.nav.langLabel}</a>
-        <span id="nav-user" style="font-size:13px;color:#6e6e73;font-weight:500;"></span>
-        <button onclick="doLogout()" class="btn-ghost" style="padding:6px 12px;font-size:12px;color:#ff375f;border-color:rgba(255,55,95,0.15);">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </div>
-    </div>
-  </nav>`
-}
-
-function footerHtml(t: ReturnType<typeof T>): string {
-  return `
-  <footer class="footer-aurora" style="padding:56px 24px 36px;margin-top:80px;position:relative;">
-    <div style="max-width:1200px;margin:0 auto;position:relative;z-index:1;">
-      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;">
-        ${LOGO}
-        <span class="font-brand" style="color:rgba(255,255,255,0.9);font-weight:700;font-size:16px;letter-spacing:1px;">MICRO CONNECT</span>
-      </div>
-      <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35);margin-bottom:8px;">${t.nav.title} &middot; Identity Connect</p>
-      <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:24px;">${t.footer.desc}</p>
-      <div style="display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:24px;">
-        <a href="https://microconnect.com" class="footer-link">${t.footer.backToMain}</a>
-        <a href="#" class="footer-link">${t.footer.privacy}</a>
-        <a href="#" class="footer-link">${t.footer.terms}</a>
-      </div>
-      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);margin-bottom:20px;"></div>
-      <p style="text-align:center;color:rgba(255,255,255,0.2);font-size:11px;">${t.footer.copyright}</p>
-    </div>
-  </footer>`
-}
-
 
 // ═══════════════════════════════════════════
 // PAGE 1 — 登录/注册 (/)
-// 📚 图书馆比喻: 办借书证
 // ═══════════════════════════════════════════
 app.get('/', (c) => {
   const lang = c.req.query('lang') || 'zh'
@@ -331,81 +281,112 @@ app.get('/', (c) => {
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
-    ${navDark(t)}
 
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;z-index:2;">
-      <div style="width:100%;max-width:420px;">
+    <!-- Nav -->
+    <nav class="navbar-dark" id="navbar">
+      <div class="nav-inner">
+        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+          ${LOGO}
+          <span class="font-brand" style="font-weight:700;font-size:13px;color:rgba(255,255,255,0.80);letter-spacing:1px;">MICRO CONNECT</span>
+        </a>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <a href="?lang=${t.nav.langToggle}" class="btn-ghost-dark">${t.nav.langLabel}</a>
+          <a href="https://microconnect.com" class="btn-ghost-dark"><i class="fas fa-external-link-alt" style="font-size:10px;margin-right:4px;"></i>${t.nav.backToMain}</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px;position:relative;z-index:2;">
+      <div style="width:100%;max-width:400px;">
 
         <!-- Hero Text -->
-        <div style="text-align:center;margin-bottom:40px;animation:slide-up .8s var(--ease-out-expo) forwards;">
-          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(93,196,179,0.12);border:1px solid rgba(93,196,179,0.2);margin-bottom:24px;">
-            <div style="width:6px;height:6px;border-radius:50%;background:#34c759;animation:pulse-dot 2s infinite;"></div>
-            <span style="font-size:12px;color:rgba(255,255,255,0.55);font-weight:500;">${zh ? '滴灌通平台 · 统一入口' : 'Micro Connect · Unified Entry'}</span>
+        <div style="text-align:center;margin-bottom:44px;">
+          <div style="animation:slide-up .7s var(--ease-out-expo) forwards;">
+            <!-- Live pill -->
+            <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);margin-bottom:28px;">
+              <div style="width:6px;height:6px;border-radius:50%;background:#34c759;animation:pulse-dot 2s infinite;"></div>
+              <span style="font-size:11px;color:rgba(255,255,255,0.40);font-weight:500;letter-spacing:0.3px;">${zh ? '滴灌通平台 · 统一入口' : 'Micro Connect · Unified Entry'}</span>
+            </div>
+
+            <!-- Logo mark -->
+            <div style="display:flex;justify-content:center;margin-bottom:24px;">
+              ${LOGO_LG}
+            </div>
+
+            <h1 style="font-size:30px;font-weight:800;color:rgba(255,255,255,0.95);letter-spacing:-0.5px;line-height:1.25;margin-bottom:12px;">
+              ${t.auth.welcome}
+            </h1>
+            <p style="font-size:14px;color:rgba(255,255,255,0.35);font-weight:400;line-height:1.7;max-width:320px;margin:0 auto;">
+              ${t.auth.subtitle}
+            </p>
           </div>
-          <h1 style="font-size:34px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.2;margin-bottom:12px;">${t.auth.welcome}</h1>
-          <p style="font-size:15px;color:rgba(255,255,255,0.4);font-weight:400;line-height:1.6;max-width:340px;margin:0 auto 16px;">${t.auth.subtitle}</p>
-          <p style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;gap:6px;">
-            <span style="font-size:16px;">&#128218;</span> ${t.auth.libraryHint}
-          </p>
         </div>
 
         <!-- Login Card -->
-        <div class="card-glass" style="padding:36px 32px;animation:scale-in .6s var(--ease-out-expo) .2s both;">
+        <div class="card-glass" style="padding:32px 28px;animation:scale-in .6s var(--ease-out-expo) .15s both;">
+
           <!-- Tabs -->
-          <div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:28px;">
-            <button class="tab-btn active" onclick="switchTab('phone')" id="tab-phone"><i class="fas fa-mobile-alt" style="margin-right:6px;font-size:13px;"></i>${t.auth.phoneTab}</button>
-            <button class="tab-btn" onclick="switchTab('email')" id="tab-email"><i class="fas fa-envelope" style="margin-right:6px;font-size:13px;"></i>${t.auth.emailTab}</button>
+          <div style="display:flex;gap:0;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <button class="tab-btn active" onclick="switchTab('phone')" id="tab-phone">
+              <i class="fas fa-mobile-alt" style="margin-right:6px;font-size:12px;opacity:0.6;"></i>${t.auth.phoneTab}
+            </button>
+            <button class="tab-btn" onclick="switchTab('email')" id="tab-email">
+              <i class="fas fa-envelope" style="margin-right:6px;font-size:12px;opacity:0.6;"></i>${t.auth.emailTab}
+            </button>
           </div>
 
-          <!-- Phone -->
+          <!-- Phone Form -->
           <div id="form-phone">
-            <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
               <input type="tel" id="inp-phone" class="input-glass" placeholder="${t.auth.phonePlaceholder}" style="flex:1;">
               <button class="btn-code" onclick="sendCode()" id="btn-code">${t.auth.getCode}</button>
             </div>
-            <input type="text" id="inp-code" class="input-glass" placeholder="${t.auth.codePlaceholder}" style="margin-bottom:16px;" maxlength="6">
+            <input type="text" id="inp-code" class="input-glass" placeholder="${t.auth.codePlaceholder}" style="margin-bottom:14px;" maxlength="6">
           </div>
 
-          <!-- Email -->
+          <!-- Email Form -->
           <div id="form-email" style="display:none;">
-            <input type="email" id="inp-email" class="input-glass" placeholder="${t.auth.emailPlaceholder}" style="margin-bottom:16px;">
-            <input type="password" id="inp-password" class="input-glass" placeholder="${t.auth.passwordPlaceholder}" style="margin-bottom:16px;">
+            <input type="email" id="inp-email" class="input-glass" placeholder="${t.auth.emailPlaceholder}" style="margin-bottom:14px;">
+            <input type="password" id="inp-password" class="input-glass" placeholder="${t.auth.passwordPlaceholder}" style="margin-bottom:14px;">
           </div>
 
           <!-- Name (new user) -->
           <div id="name-row" style="display:none;">
-            <input type="text" id="inp-name" class="input-glass" placeholder="${t.auth.namePlaceholder}" style="margin-bottom:16px;">
+            <input type="text" id="inp-name" class="input-glass" placeholder="${t.auth.namePlaceholder}" style="margin-bottom:14px;">
           </div>
 
           <!-- Submit -->
-          <button class="btn-primary" style="width:100%;padding:16px;box-shadow:0 0 24px rgba(93,196,179,0.3),0 4px 16px rgba(93,196,179,0.2);border:1px solid rgba(93,196,179,0.3);" onclick="doSubmit()" id="btn-submit">
+          <button class="btn-primary" style="width:100%;padding:15px;margin-top:4px;" onclick="doSubmit()" id="btn-submit">
             ${t.auth.loginBtn}
           </button>
 
-          <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.25);margin-top:16px;">
+          <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.20);margin-top:16px;letter-spacing:0.1px;">
             ${t.auth.noAccount}
           </p>
         </div>
 
         <!-- Demo Hint -->
-        <div style="margin-top:24px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;animation:fade-in 1s .5s both;">
-          <p style="font-size:12px;color:rgba(255,255,255,0.28);line-height:1.7;">
-            <i class="fas fa-flask" style="color:rgba(93,196,179,0.6);margin-right:6px;"></i>
-            <strong style="color:rgba(255,255,255,0.45);">Demo</strong>&nbsp;
-            ${zh ? '验证码: 123456 &nbsp;|&nbsp; 手机: 13800001234 &nbsp;|&nbsp; 邮箱: investor@fund.com / demo123' : 'Code: 123456 &nbsp;|&nbsp; Phone: 13800001234 &nbsp;|&nbsp; Email: investor@fund.com / demo123'}
+        <div style="margin-top:20px;padding:14px 18px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:14px;animation:fade-in 1s .4s both;">
+          <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.8;">
+            <i class="fas fa-flask" style="color:rgba(93,196,179,0.5);margin-right:5px;"></i>
+            <strong style="color:rgba(255,255,255,0.35);">Demo</strong>&nbsp;
+            ${zh ? '手机 13800001234 / 验证码 123456' : 'Phone 13800001234 / Code 123456'}
+            <br>
+            <span style="margin-left:22px;">${zh ? '邮箱 investor@fund.com / 密码 demo123' : 'Email investor@fund.com / Pass demo123'}</span>
           </p>
         </div>
 
         <!-- Identity hints -->
-        <div style="display:flex;justify-content:center;gap:10px;margin-top:24px;animation:fade-in 1s .7s both;">
-          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.35);">
-            <i class="fas fa-rocket" style="color:#F59E0B;font-size:10px;"></i>${t.identities.initiator.name}
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:20px;animation:fade-in 1s .6s both;">
+          <span class="badge-glass" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
+            <i class="fas fa-rocket" style="color:#F59E0B;font-size:9px;"></i>${t.identities.initiator.name}
           </span>
-          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.35);">
-            <i class="fas fa-search" style="color:#10B981;font-size:10px;"></i>${t.identities.participant.name}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
+            <i class="fas fa-search-dollar" style="color:#10B981;font-size:9px;"></i>${t.identities.participant.name}
           </span>
-          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);font-size:11px;color:rgba(255,255,255,0.35);">
-            <i class="fas fa-building" style="color:#6366F1;font-size:10px;"></i>${t.identities.organization.name}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
+            <i class="fas fa-building" style="color:#6366F1;font-size:9px;"></i>${t.identities.organization.name}
           </span>
         </div>
       </div>
@@ -448,21 +429,19 @@ app.get('/', (c) => {
         body.password=document.getElementById('inp-password').value.trim();
       }
 
-      // Try login first
       var r=await api('/api/auth/login',{method:'POST',body:JSON.stringify(body)});
       if(r.success){
         setAuth(r.token,r.user);
-        showToast('${zh ? '登录成功！' : 'Welcome back!'}','success');
-        setTimeout(function(){window.location.href='/dashboard'+window.location.search},600);
+        showToast('${zh ? '登录成功' : 'Welcome back'}','success');
+        setTimeout(function(){window.location.href='/dashboard'+window.location.search},500);
         return;
       }
 
-      // If not found, show name field for register
       if(r.message&&r.message.indexOf('${zh ? '不存在' : 'not exist'}')!==-1){
         if(!showName){
           showName=true;
           document.getElementById('name-row').style.display='block';
-          showToast('${zh ? '新用户，请输入姓名完成注册' : 'New user, enter your name to register'}','info');
+          showToast('${zh ? '新用户，请输入姓名完成注册' : 'New user, enter name to register'}','info');
           return;
         }
         body.name=document.getElementById('inp-name').value.trim();
@@ -470,8 +449,8 @@ app.get('/', (c) => {
         var r2=await api('/api/auth/register',{method:'POST',body:JSON.stringify(body)});
         if(r2.success){
           setAuth(r2.token,r2.user);
-          showToast('${zh ? '注册成功！' : 'Registered!'}','success');
-          setTimeout(function(){window.location.href='/dashboard'+window.location.search},600);
+          showToast('${zh ? '注册成功' : 'Registered'}','success');
+          setTimeout(function(){window.location.href='/dashboard'+window.location.search},500);
           return;
         }
         showToast(r2.message,'error');
@@ -489,14 +468,12 @@ app.get('/', (c) => {
 
 // ═══════════════════════════════════════════
 // PAGE 2 — 个人工作台 (/dashboard)
-// 欢迎区 → 身份卡片 → 已认证主体 → 9通导航
 // ═══════════════════════════════════════════
 app.get('/dashboard', (c) => {
   const lang = c.req.query('lang') || 'zh'
   const t = T(lang)
   const zh = lang !== 'en'
 
-  // Light color map for connect icons
   const lightMap: Record<string, string> = {
     '#3B82F6': '#DBEAFE', '#F59E0B': '#FEF3C7', '#6366F1': '#E0E7FF',
     '#10B981': '#D1FAE5', '#8B5CF6': '#EDE9FE', '#EF4444': '#FEE2E2'
@@ -504,66 +481,92 @@ app.get('/dashboard', (c) => {
 
   const connectsHTML = t.connects.map(cn => {
     const light = lightMap[cn.color] || '#f5f5f7'
-    const sl = cn.status === 'live' ? (zh ? '已上线' : 'Live') : cn.status === 'beta' ? 'Beta' : (zh ? '即将' : 'Coming')
+    const sl = cn.status === 'live' ? (zh ? '已上线' : 'Live') : cn.status === 'beta' ? 'Beta' : (zh ? '即将' : 'Soon')
     return `
     <div class="connect-item" data-req='${JSON.stringify(cn.requires)}' data-id="${cn.id}" onclick="clickConnect('${cn.id}','${cn.name}')" title="${cn.desc}">
       <div class="connect-icon" style="background:linear-gradient(135deg,${light},${cn.color});">
         <i class="fas ${cn.icon}"></i>
       </div>
-      <span style="font-size:12px;font-weight:600;color:#1d1d1f;">${cn.name}</span>
+      <span style="font-size:12px;font-weight:600;color:var(--text-primary);">${cn.name}</span>
       <span class="connect-status status-${cn.status}">${sl}</span>
     </div>`
   }).join('')
 
   const body = `
-  ${navLight(t, lang)}
-
-  <main style="max-width:1080px;margin:0 auto;padding:24px 20px 0;">
-
-    <!-- Welcome -->
-    <div class="reveal" style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:36px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:16px;">
-        <div class="avatar-ring"><i class="fas fa-user" style="font-size:22px;color:#fff;"></i></div>
-        <div>
-          <h1 style="font-size:24px;font-weight:800;color:#1d1d1f;letter-spacing:-.3px;" id="greeting">${t.dashboard.greeting}</h1>
-          <p style="font-size:14px;color:#86868b;margin-top:2px;" id="sub-greeting">${t.dashboard.subtitle}</p>
-        </div>
-      </div>
-      <a href="/entity-verify${lang === 'en' ? '?lang=en' : ''}" class="btn-ghost" style="font-size:13px;">
-        <i class="fas fa-plus-circle"></i>${t.dashboard.addEntity}
+  <!-- Nav -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        ${LOGO}
+        <span class="font-brand" style="font-weight:700;font-size:13px;color:var(--text-primary);letter-spacing:0.8px;">MICRO CONNECT</span>
+        <span class="badge badge-brand" style="font-size:10px;">
+          <i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}
+        </span>
       </a>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:7px 12px;font-size:12px;">${t.nav.langLabel}</a>
+        <span id="nav-user" style="font-size:13px;color:var(--text-tertiary);font-weight:500;"></span>
+        <button onclick="doLogout()" class="btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--error);border-color:rgba(255,55,95,0.12);">
+          <i class="fas fa-sign-out-alt" style="font-size:11px;"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main style="max-width:960px;margin:0 auto;padding:32px 24px 0;">
+
+    <!-- Welcome Section -->
+    <div class="reveal" style="margin-bottom:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div class="avatar-ring"><i class="fas fa-user" style="font-size:20px;color:#fff;"></i></div>
+          <div>
+            <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;line-height:1.3;" id="greeting">${t.dashboard.greeting}</h1>
+            <p style="font-size:13px;color:var(--text-tertiary);margin-top:3px;" id="sub-greeting">${t.dashboard.subtitle}</p>
+          </div>
+        </div>
+        <a href="/entity-verify${lang === 'en' ? '?lang=en' : ''}" class="btn-ghost" style="font-size:12px;">
+          <i class="fas fa-plus-circle" style="font-size:11px;"></i>${t.dashboard.addEntity}
+        </a>
+      </div>
     </div>
 
     <!-- Identity Cards -->
     <div class="reveal stagger-1">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#b2e8de,#5DC4B3);"><i class="fas fa-fingerprint" style="font-size:14px;color:#fff;"></i></div>
-        <h2 style="font-size:18px;font-weight:700;color:#1d1d1f;">${t.dashboard.identitySection}</h2>
+        <div class="section-icon" style="background:linear-gradient(135deg,#b2e8de,#5DC4B3);">
+          <i class="fas fa-fingerprint" style="font-size:13px;color:#fff;"></i>
+        </div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">${t.dashboard.identitySection}</h2>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:40px;" id="identity-cards"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:36px;" id="identity-cards"></div>
     </div>
 
     <!-- Entities -->
     <div class="reveal stagger-2">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#E0E7FF,#6366F1);"><i class="fas fa-building" style="font-size:14px;color:#fff;"></i></div>
-        <h2 style="font-size:18px;font-weight:700;color:#1d1d1f;">${t.dashboard.entitySection}</h2>
+        <div class="section-icon" style="background:linear-gradient(135deg,#c7d2fe,#6366F1);">
+          <i class="fas fa-building" style="font-size:13px;color:#fff;"></i>
+        </div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">${t.dashboard.entitySection}</h2>
       </div>
-      <div id="entity-list" style="margin-bottom:40px;"></div>
+      <div id="entity-list" style="margin-bottom:36px;"></div>
     </div>
 
     <!-- Divider -->
-    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(0,0,0,0.06),transparent);margin:8px 0 36px;"></div>
+    <div class="divider"></div>
 
     <!-- 9 Connects Grid -->
     <div class="reveal stagger-3">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#5DC4B3,#3D8F83);"><i class="fas fa-th" style="font-size:14px;color:#fff;"></i></div>
-        <h2 style="font-size:18px;font-weight:700;color:#1d1d1f;">${t.dashboard.quickNav}</h2>
-        <span style="font-size:12px;color:#86868b;margin-left:auto;">${zh ? '9 个通 · 产品矩阵' : '9 Connects · Product Matrix'}</span>
+        <div class="section-icon" style="background:linear-gradient(135deg,#5DC4B3,#3D8F83);">
+          <i class="fas fa-th" style="font-size:13px;color:#fff;"></i>
+        </div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">${t.dashboard.quickNav}</h2>
+        <span style="font-size:11px;color:var(--text-quaternary);margin-left:auto;font-weight:500;">${zh ? '9个通 · 产品矩阵' : '9 Connects · Product Matrix'}</span>
       </div>
-      <div class="card" style="padding:28px;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;" id="connects-grid">
+      <div class="card" style="padding:24px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:4px;" id="connects-grid">
           ${connectsHTML}
         </div>
       </div>
@@ -571,7 +574,24 @@ app.get('/dashboard', (c) => {
 
   </main>
 
-  ${footerHtml(t)}
+  <!-- Footer -->
+  <footer class="footer-aurora" style="padding:48px 24px 32px;margin-top:64px;position:relative;">
+    <div style="max-width:960px;margin:0 auto;position:relative;z-index:1;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
+        ${LOGO}
+        <span class="font-brand" style="color:rgba(255,255,255,0.75);font-weight:700;font-size:14px;letter-spacing:1px;">MICRO CONNECT</span>
+      </div>
+      <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:6px;">${t.nav.title} · Identity Connect</p>
+      <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.15);margin-bottom:24px;">${t.footer.desc}</p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:20px;">
+        <a href="https://microconnect.com" class="footer-link">${t.footer.backToMain}</a>
+        <a href="#" class="footer-link">${t.footer.privacy}</a>
+        <a href="#" class="footer-link">${t.footer.terms}</a>
+      </div>
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);margin-bottom:16px;"></div>
+      <p style="text-align:center;color:rgba(255,255,255,0.12);font-size:10px;">${t.footer.copyright}</p>
+    </div>
+  </footer>
 
   <script>
   var LANG=getLang();
@@ -579,15 +599,15 @@ app.get('/dashboard', (c) => {
 
   var ROLES={
     initiator:{name:tt('发起身份','Initiator'),icon:'fa-rocket',desc:tt('上传经营数据，发起融资申请','Upload data, initiate financing'),target:tt('发起通','Originate Connect'),cta:tt('进入发起通','Enter Originate'),gradient:'ic-initiator'},
-    participant:{name:tt('参与身份','Participant'),icon:'fa-search',desc:tt('浏览投资项目，搭建评估筛子','Browse deals, build assessment sieves'),target:tt('参与通','Deal Connect'),cta:tt('进入参与通','Enter Deal'),gradient:'ic-participant'},
-    organization:{name:tt('机构身份','Organization'),icon:'fa-building',desc:tt('机构级批量操作和自定义工作流','Institutional batch operations & custom workflows'),target:tt('全部通','All Connects'),cta:tt('进入机构工作台','Enter Org Workspace'),gradient:'ic-organization'}
+    participant:{name:tt('参与身份','Participant'),icon:'fa-search-dollar',desc:tt('浏览投资项目，搭建评估筛子','Browse deals, build assessment sieves'),target:tt('参与通','Deal Connect'),cta:tt('进入参与通','Enter Deal'),gradient:'ic-participant'},
+    organization:{name:tt('机构身份','Organization'),icon:'fa-building',desc:tt('机构级批量操作和自定义工作流','Institutional batch operations & workflows'),target:tt('全部通','All Connects'),cta:tt('进入机构工作台','Enter Org Workspace'),gradient:'ic-organization'}
   };
 
   (function init(){
     if(!getToken()||!getUser()){window.location.href='/'+window.location.search;return}
     var u=getUser();
     document.getElementById('greeting').textContent=tt('你好，','Hello, ')+u.name;
-    document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt+' · '+tt('管理你的身份，开启工作流','Manage identities, unlock workflows');
+    document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt+' · '+u.identities.length+tt(' 个身份已解锁',' identities unlocked');
     var nu=document.getElementById('nav-user');if(nu)nu.textContent=u.name;
     renderCards(u);
     renderEntities(u);
@@ -602,23 +622,23 @@ app.get('/dashboard', (c) => {
       var id=user.identities.find(function(i){return i.role===role});
       var ok=!!id;
       return '<div class="identity-card '+(ok?m.gradient:'ic-locked')+'">'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
-          '<div style="width:48px;height:48px;border-radius:14px;background:'+(ok?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.04)')+';display:flex;align-items:center;justify-content:center;">'+
-            '<i class="fas '+m.icon+'" style="font-size:20px;color:'+(ok?'rgba(0,0,0,0.55)':'#86868b')+';"></i>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">'+
+          '<div style="width:44px;height:44px;border-radius:13px;background:'+(ok?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
+            '<i class="fas '+m.icon+'" style="font-size:18px;color:'+(ok?'rgba(0,0,0,0.5)':'var(--text-quaternary)')+';"></i>'+
           '</div>'+
           (ok
-            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.3);font-size:11px;font-weight:600;color:rgba(0,0,0,0.55);"><i class="fas fa-check-circle" style="font-size:10px;color:#16a34a;"></i>'+tt('已解锁','Unlocked')+'</span>'
-            : '<span style="font-size:11px;color:#aeaeb2;font-weight:500;">'+tt('未解锁','Locked')+'</span>'
+            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.35);font-size:10px;font-weight:600;color:rgba(0,0,0,0.5);backdrop-filter:blur(4px);"><i class="fas fa-check-circle" style="font-size:9px;color:#16a34a;"></i>'+tt('已解锁','Unlocked')+'</span>'
+            : '<span style="font-size:10px;color:var(--text-quaternary);font-weight:500;letter-spacing:0.2px;">'+tt('未解锁','Locked')+'</span>'
           )+
         '</div>'+
-        '<h3 style="font-size:17px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.75)':'#6e6e73')+';margin-bottom:4px;">'+m.name+'</h3>'+
-        '<p style="font-size:12px;color:'+(ok?'rgba(0,0,0,0.45)':'#86868b')+';margin-bottom:20px;line-height:1.5;">'+m.desc+'</p>'+
+        '<h3 style="font-size:16px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.70)':'var(--text-secondary)')+';margin-bottom:4px;letter-spacing:-0.2px;">'+m.name+'</h3>'+
+        '<p style="font-size:12px;color:'+(ok?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:18px;line-height:1.6;">'+m.desc+'</p>'+
         (ok
           ? '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-              '<span style="font-size:11px;color:rgba(0,0,0,0.35);">'+id.unlockedAt+'</span>'+
-              '<button class="btn-card-action" onclick="enterConnect(&quot;'+role+'&quot;)">'+m.cta+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:10px;"></i></button>'+
+              '<span style="font-size:10px;color:rgba(0,0,0,0.25);font-weight:500;">'+id.unlockedAt+'</span>'+
+              '<button class="btn-card-action" onclick="enterConnect(&quot;'+role+'&quot;)">'+m.cta+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
             '</div>'
-          : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;"></i>'+tt('解锁此身份','Unlock This Role')+'</button>'
+          : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;font-size:11px;"></i>'+tt('解锁此身份','Unlock Role')+'</button>'
         )+
       '</div>';
     }).join('');
@@ -627,22 +647,24 @@ app.get('/dashboard', (c) => {
   function renderEntities(user){
     var c=document.getElementById('entity-list');
     if(!user.entities||!user.entities.length){
-      c.innerHTML='<div class="card" style="padding:32px;text-align:center;">'+
-        '<i class="fas fa-building" style="font-size:28px;color:#aeaeb2;margin-bottom:12px;display:block;"></i>'+
-        '<p style="font-size:14px;color:#86868b;margin-bottom:4px;">'+tt('暂无已认证主体','No verified entities yet')+'</p>'+
-        '<p style="font-size:12px;color:#aeaeb2;">'+tt('认证主体后可进入协作空间','Verify an entity to access workspace')+'</p></div>';
+      c.innerHTML='<div class="card" style="padding:36px;text-align:center;">'+
+        '<div style="width:48px;height:48px;border-radius:14px;background:rgba(99,102,241,0.06);display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;">'+
+          '<i class="fas fa-building" style="font-size:20px;color:var(--text-quaternary);"></i>'+
+        '</div>'+
+        '<p style="font-size:14px;color:var(--text-secondary);margin-bottom:4px;font-weight:500;">'+tt('暂无已认证主体','No verified entities yet')+'</p>'+
+        '<p style="font-size:12px;color:var(--text-quaternary);">'+tt('认证主体后可进入协作空间','Verify an entity to access workspace')+'</p></div>';
       return;
     }
     c.innerHTML=user.entities.map(function(e){
-      return '<div class="card" style="padding:20px 24px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">'+
+      return '<div class="card" style="padding:18px 22px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">'+
         '<div style="display:flex;align-items:center;gap:14px;">'+
-          '<div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#e0e7ff,#a5b4fc);display:flex;align-items:center;justify-content:center;"><i class="fas fa-store" style="font-size:16px;color:#4f46e5;"></i></div>'+
+          '<div style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#eef2ff,#c7d2fe);display:flex;align-items:center;justify-content:center;"><i class="fas fa-store" style="font-size:15px;color:#6366f1;"></i></div>'+
           '<div>'+
-            '<div style="font-size:15px;font-weight:600;color:#1d1d1f;">'+e.entityName+'</div>'+
-            '<div style="font-size:12px;color:#86868b;margin-top:2px;"><i class="fas fa-user-tag" style="margin-right:4px;"></i>'+e.role+' · '+e.verifiedAt+'</div>'+
+            '<div style="font-size:14px;font-weight:600;color:var(--text-primary);">'+e.entityName+'</div>'+
+            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;"><i class="fas fa-user-tag" style="margin-right:3px;font-size:10px;"></i>'+e.role+' · '+e.verifiedAt+'</div>'+
           '</div>'+
         '</div>'+
-        '<button class="btn-ghost" style="font-size:12px;padding:8px 16px;" onclick="showToast(&quot;'+tt('协作空间开发中','Workspace coming soon')+'&quot;,&quot;info&quot;)"><i class="fas fa-arrow-right" style="margin-right:4px;"></i>'+tt('进入空间','Workspace')+'</button>'+
+        '<button class="btn-ghost" style="font-size:11px;padding:7px 14px;" onclick="showToast(&quot;'+tt('协作空间开发中','Workspace coming soon')+'&quot;,&quot;info&quot;)"><i class="fas fa-arrow-right" style="margin-right:4px;font-size:10px;"></i>'+tt('进入空间','Workspace')+'</button>'+
       '</div>';
     }).join('');
   }
@@ -663,8 +685,9 @@ app.get('/dashboard', (c) => {
     var r=await api('/api/user/unlock',{method:'POST',body:JSON.stringify({role:role})});
     if(r.success){
       var u=getUser();u.identities.push(r.identity);localStorage.setItem('ic_user',JSON.stringify(u));
-      showToast(tt('身份解锁成功！','Role unlocked!'),'success');
+      showToast(tt('身份解锁成功','Role unlocked!'),'success');
       renderCards(u);updateConnects(u);
+      document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt+' · '+u.identities.length+tt(' 个身份已解锁',' identities unlocked');
     } else showToast(r.message,'error');
   }
 
@@ -700,67 +723,104 @@ app.get('/entity-verify', (c) => {
   ]
 
   const body = `
-  ${navLight(t, lang)}
+  <!-- Nav -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        ${LOGO}
+        <span class="font-brand" style="font-weight:700;font-size:13px;color:var(--text-primary);letter-spacing:0.8px;">MICRO CONNECT</span>
+        <span class="badge badge-brand" style="font-size:10px;">
+          <i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}
+        </span>
+      </a>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:7px 12px;font-size:12px;">${t.nav.langLabel}</a>
+        <span id="nav-user" style="font-size:13px;color:var(--text-tertiary);font-weight:500;"></span>
+        <button onclick="doLogout()" class="btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--error);border-color:rgba(255,55,95,0.12);">
+          <i class="fas fa-sign-out-alt" style="font-size:11px;"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
 
-  <main style="max-width:560px;margin:0 auto;padding:32px 20px 0;">
+  <main style="max-width:520px;margin:0 auto;padding:32px 20px 0;">
     <!-- Breadcrumb -->
-    <div class="reveal" style="margin-bottom:28px;">
-      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#3D8F83;text-decoration:none;font-weight:500;transition:opacity .2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-        <i class="fas fa-arrow-left"></i>${t.entity.backToDash}
+    <div class="reveal" style="margin-bottom:24px;">
+      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--brand-dark);text-decoration:none;font-weight:500;transition:opacity .2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+        <i class="fas fa-arrow-left" style="font-size:11px;"></i>${t.entity.backToDash}
       </a>
     </div>
 
     <!-- Form Card -->
-    <div class="card reveal stagger-1" style="padding:36px 32px;">
+    <div class="card reveal stagger-1" style="padding:36px 28px;">
       <div style="text-align:center;margin-bottom:32px;">
-        <div style="width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,#e0e7ff,#6366F1);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 16px rgba(99,102,241,0.2);">
-          <i class="fas fa-building" style="font-size:24px;color:#fff;"></i>
+        <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#e0e7ff,#6366F1);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 16px rgba(99,102,241,0.15);">
+          <i class="fas fa-building" style="font-size:22px;color:#fff;"></i>
         </div>
-        <h1 style="font-size:22px;font-weight:800;color:#1d1d1f;letter-spacing:-.3px;">${t.entity.title}</h1>
-        <p style="font-size:13px;color:#86868b;margin-top:6px;">${t.entity.subtitle}</p>
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;">${t.entity.title}</h1>
+        <p style="font-size:13px;color:var(--text-tertiary);margin-top:6px;">${t.entity.subtitle}</p>
       </div>
 
-      <div style="margin-bottom:20px;">
-        <label style="font-size:13px;font-weight:600;color:#6e6e73;display:block;margin-bottom:8px;">${t.entity.companyName} <span style="color:#ff375f;">*</span></label>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">${t.entity.companyName} <span style="color:var(--error);">*</span></label>
         <input id="ent-name" class="input-field" placeholder="${zh ? '例如: ABC 餐饮连锁' : 'e.g. ABC Restaurant Chain'}">
       </div>
-      <div style="margin-bottom:20px;">
-        <label style="font-size:13px;font-weight:600;color:#6e6e73;display:block;margin-bottom:8px;">${t.entity.creditCode}</label>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">${t.entity.creditCode}</label>
         <input id="ent-code" class="input-field" placeholder="${zh ? '选填' : 'Optional'}">
       </div>
-      <div style="margin-bottom:20px;">
-        <label style="font-size:13px;font-weight:600;color:#6e6e73;display:block;margin-bottom:8px;">${t.entity.yourRole} <span style="color:#ff375f;">*</span></label>
+      <div style="margin-bottom:18px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">${t.entity.yourRole} <span style="color:var(--error);">*</span></label>
         <select id="ent-role" class="input-field" style="appearance:auto;cursor:pointer;">
           ${roleOpts.map(r => `<option value="${r.value}">${r.label}</option>`).join('')}
         </select>
       </div>
       <div style="margin-bottom:28px;">
-        <label style="font-size:13px;font-weight:600;color:#6e6e73;display:block;margin-bottom:8px;">${t.entity.uploadProof}</label>
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">${t.entity.uploadProof}</label>
         <div class="upload-zone">
-          <i class="fas fa-cloud-upload-alt" style="font-size:28px;color:#aeaeb2;margin-bottom:10px;display:block;"></i>
-          <p style="font-size:13px;color:#86868b;line-height:1.6;">${zh ? '营业执照 / 授权书等' : 'Business license / authorization'}<br>
-            <span style="font-size:11px;color:#aeaeb2;">${zh ? 'Demo 阶段可跳过' : 'Skip for Demo'}</span>
-          </p>
+          <i class="fas fa-cloud-upload-alt" style="font-size:24px;color:var(--text-quaternary);margin-bottom:8px;display:block;"></i>
+          <p style="font-size:12px;color:var(--text-tertiary);line-height:1.6;">${zh ? '营业执照 / 授权书等' : 'Business license / authorization'}</p>
+          <p style="font-size:11px;color:var(--text-quaternary);margin-top:4px;">${zh ? 'Demo 阶段可跳过' : 'Skip for Demo'}</p>
         </div>
       </div>
       <button class="btn-primary" style="width:100%;" onclick="submitEntity()">
-        <i class="fas fa-paper-plane"></i>${t.entity.submit}
+        <i class="fas fa-paper-plane" style="font-size:13px;"></i>${t.entity.submit}
       </button>
     </div>
 
-    <!-- Hint -->
-    <div class="reveal stagger-2" style="margin-top:20px;padding:14px 18px;background:rgba(93,196,179,0.04);border:1px solid rgba(93,196,179,0.1);border-radius:14px;">
-      <p style="font-size:12px;color:#86868b;display:flex;align-items:center;gap:6px;">
-        <i class="fas fa-flask" style="color:#5DC4B3;"></i>
+    <!-- Demo Hint -->
+    <div class="reveal stagger-2" style="margin-top:16px;padding:12px 16px;background:rgba(93,196,179,0.03);border:1px solid rgba(93,196,179,0.08);border-radius:12px;">
+      <p style="font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-flask" style="color:var(--brand);font-size:10px;"></i>
         ${zh ? 'Demo 阶段提交即通过，无需真实材料。' : 'Demo: auto-approve on submit, no real documents needed.'}
       </p>
     </div>
   </main>
 
-  ${footerHtml(t)}
+  <!-- Footer -->
+  <footer class="footer-aurora" style="padding:48px 24px 32px;margin-top:64px;position:relative;">
+    <div style="max-width:960px;margin:0 auto;position:relative;z-index:1;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
+        ${LOGO}
+        <span class="font-brand" style="color:rgba(255,255,255,0.75);font-weight:700;font-size:14px;letter-spacing:1px;">MICRO CONNECT</span>
+      </div>
+      <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:6px;">${t.nav.title} · Identity Connect</p>
+      <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.15);margin-bottom:24px;">${t.footer.desc}</p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:20px;">
+        <a href="https://microconnect.com" class="footer-link">${t.footer.backToMain}</a>
+        <a href="#" class="footer-link">${t.footer.privacy}</a>
+        <a href="#" class="footer-link">${t.footer.terms}</a>
+      </div>
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);margin-bottom:16px;"></div>
+      <p style="text-align:center;color:rgba(255,255,255,0.12);font-size:10px;">${t.footer.copyright}</p>
+    </div>
+  </footer>
 
   <script>
-  (function(){if(!getToken()||!getUser()){window.location.href='/'+window.location.search}})();
+  (function(){
+    if(!getToken()||!getUser()){window.location.href='/'+window.location.search}
+    var u=getUser();var nu=document.getElementById('nav-user');if(nu&&u)nu.textContent=u.name;
+  })();
   async function submitEntity(){
     var n=document.getElementById('ent-name').value.trim();
     var c=document.getElementById('ent-code').value.trim();
@@ -769,8 +829,8 @@ app.get('/entity-verify', (c) => {
     var res=await api('/api/entity/verify',{method:'POST',body:JSON.stringify({entityName:n,creditCode:c,role:r})});
     if(res.success){
       var u=getUser();u.entities.push(res.entity);localStorage.setItem('ic_user',JSON.stringify(u));
-      showToast('${zh ? '认证成功！' : 'Verified!'}','success');
-      setTimeout(function(){window.location.href='/dashboard'+window.location.search},1000);
+      showToast('${zh ? '认证成功' : 'Verified!'}','success');
+      setTimeout(function(){window.location.href='/dashboard'+window.location.search},800);
     } else showToast(res.message||'${zh ? '提交失败' : 'Failed'}','error');
   }
   </script>`
