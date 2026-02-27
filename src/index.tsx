@@ -2,8 +2,9 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 // ═══════════════════════════════════════════════════════
-// 身份通 Identity Connect — V2 Redesign
-// MicroConnect Product Bible V3.0 · Apple-Grade Visual
+// 身份通 Identity Connect — V3 Business Logic Fix
+// 身份是门票，发起机会/参与机会才是核心动作
+// MicroConnect Product Bible V3.0
 // ═══════════════════════════════════════════════════════
 
 const app = new Hono()
@@ -40,11 +41,34 @@ function parseJWT(token: string): Record<string, unknown> | null {
 // ─── Data Models ───
 interface User {
   id: string; phone?: string; email?: string; name: string; password?: string
-  avatar?: string; identities: Identity[]; entities: EntityAuth[]; createdAt: string
+  identities: Identity[]; entities: EntityAuth[]; createdAt: string
 }
 type IdentityRole = 'initiator' | 'participant' | 'organization'
 interface Identity { role: IdentityRole; unlockedAt: string; status: 'active' | 'pending' | 'suspended' }
 interface EntityAuth { entityId: string; entityName: string; role: string; verifiedAt: string }
+
+// 机会 = Deal / Opportunity
+interface Deal {
+  id: string
+  title: string
+  entityName: string
+  industry: string
+  amount: string         // 融资金额
+  period: string         // 回款周期
+  status: 'draft' | 'pending' | 'live' | 'closed' | 'matched'
+  createdAt: string
+  initiatorId: string    // 发起人
+  participantIds: string[] // 参与人列表
+}
+
+// ─── Demo Deals ───
+const deals: Deal[] = [
+  { id: 'd-001', title: 'ABC 餐饮连锁 · 华南区30店扩张', entityName: 'ABC 餐饮连锁', industry: '餐饮', amount: '¥2,000万', period: '18个月', status: 'live', createdAt: '2026-02-10', initiatorId: 'u-001', participantIds: ['u-002'] },
+  { id: 'd-002', title: 'ABC 餐饮连锁 · 供应链升级', entityName: 'ABC 餐饮连锁', industry: '餐饮', amount: '¥500万', period: '12个月', status: 'pending', createdAt: '2026-02-20', initiatorId: 'u-001', participantIds: [] },
+  { id: 'd-003', title: '鲜果时光 · 华东区50店', entityName: '鲜果时光', industry: '零售', amount: '¥3,500万', period: '24个月', status: 'live', createdAt: '2026-01-28', initiatorId: 'u-003', participantIds: ['u-002'] },
+  { id: 'd-004', title: '快捷健身 · 全国200店', entityName: '快捷健身', industry: '健身', amount: '¥8,000万', period: '36个月', status: 'matched', createdAt: '2026-01-15', initiatorId: 'u-003', participantIds: ['u-002'] },
+  { id: 'd-005', title: '茶百道加盟 · 西南区域', entityName: '茶百道', industry: '茶饮', amount: '¥1,200万', period: '12个月', status: 'live', createdAt: '2026-02-25', initiatorId: 'u-001', participantIds: [] },
+]
 
 // ─── Demo Users ───
 const users: User[] = [
@@ -64,25 +88,29 @@ function getUserFromToken(auth: string | undefined): User | null {
   return p?.userId ? (findUserById(p.userId as string) || null) : null
 }
 
+// 获取用户发起的机会
+function getInitiatedDeals(userId: string) { return deals.filter(d => d.initiatorId === userId) }
+// 获取用户参与的机会
+function getParticipatedDeals(userId: string) { return deals.filter(d => d.participantIds.includes(userId)) }
+
 
 // ═══════════════════════════════════════════
-// i18n
+// i18n — 修正业务概念
+// 身份 = 门票/角色，机会 = 核心业务对象
 // ═══════════════════════════════════════════
 function T(lang: string) {
   const zh = lang !== 'en'
   return {
     nav: {
       title: zh ? '身份通' : 'Identity Connect',
-      subtitle: zh ? '以人为单位的万能工作台' : 'Universal Personal Workstation',
-      backToMain: zh ? '返回主站' : 'Back to Main',
-      logout: zh ? '退出登录' : 'Logout',
+      backToMain: zh ? '主站' : 'Main Site',
       langLabel: zh ? 'EN' : '中',
       langToggle: zh ? 'en' : 'zh',
     },
     auth: {
       welcome: zh ? '欢迎来到滴灌通' : 'Welcome to Micro Connect',
       subtitle: zh ? '收入分成投资的基础设施级平台' : 'Infrastructure-Grade Revenue-Based Investment Platform',
-      libraryHint: zh ? '办借书证 — 选择你的身份，开启投融资之旅' : 'Get your library card — choose identity, start journey',
+      libraryHint: zh ? '注册账号，选择你的角色，发起或参与投资机会' : 'Register, choose your role, originate or participate in deals',
       phoneTab: zh ? '手机号' : 'Phone',
       emailTab: zh ? '邮箱' : 'Email',
       phonePlaceholder: zh ? '请输入手机号' : 'Enter phone number',
@@ -96,26 +124,48 @@ function T(lang: string) {
     },
     dashboard: {
       greeting: zh ? '你好' : 'Hello',
-      subtitle: zh ? '管理你的身份，开启不同的工作流' : 'Manage your identities, unlock different workflows',
-      identitySection: zh ? '功能身份' : 'Functional Identities',
+      subtitle: zh ? '管理你的角色与机会' : 'Manage your roles and deals',
+      roleSection: zh ? '我的角色' : 'My Roles',
       entitySection: zh ? '已认证主体' : 'Verified Entities',
-      quickNav: zh ? '快捷导航' : 'Quick Navigation',
-      unlocked: zh ? '已解锁' : 'Unlocked',
-      locked: zh ? '未解锁' : 'Not Unlocked',
-      unlock: zh ? '解锁身份' : 'Unlock',
-      enter: zh ? '进入' : 'Enter',
+      dealSection: zh ? '我的机会' : 'My Deals',
+      quickNav: zh ? '产品导航' : 'Product Navigation',
       addEntity: zh ? '+ 认证新主体' : '+ Verify New Entity',
       noEntities: zh ? '暂无已认证主体' : 'No verified entities yet',
-      verifyHint: zh ? '认证主体后可进入协作空间' : 'Verify an entity to access workspace',
+      verifyHint: zh ? '认证主体后可发起融资机会' : 'Verify an entity to originate deals',
+      initiated: zh ? '我发起的机会' : 'Deals I Originated',
+      participated: zh ? '我参与的机会' : 'Deals I Participated',
+      noDealInit: zh ? '你还没有发起过机会' : 'No originated deals yet',
+      noDealPart: zh ? '你还没有参与过机会' : 'No participated deals yet',
+      noDealInitHint: zh ? '解锁发起角色 → 认证主体 → 去发起通上传数据' : 'Unlock originator role → verify entity → upload data in Originate Connect',
+      noDealPartHint: zh ? '解锁参与角色后，可在参与通浏览和筛选机会' : 'Unlock participant role to browse and filter deals',
     },
-    identities: {
-      initiator: { name: zh ? '发起身份' : 'Initiator', desc: zh ? '上传经营数据，发起融资申请' : 'Upload data, initiate financing', icon: 'fa-rocket', target: zh ? '发起通' : 'Originate Connect', cta: zh ? '进入发起通' : 'Enter Originate' },
-      participant: { name: zh ? '参与身份' : 'Participant', desc: zh ? '浏览投资项目，搭建评估筛子' : 'Browse deals, build assessment sieves', icon: 'fa-search-dollar', target: zh ? '参与通' : 'Deal Connect', cta: zh ? '进入参与通' : 'Enter Deal' },
-      organization: { name: zh ? '机构身份' : 'Organization', desc: zh ? '机构级批量操作和自定义工作流' : 'Institutional batch operations & custom workflows', icon: 'fa-building', target: zh ? '全部通' : 'All Connects', cta: zh ? '进入机构工作台' : 'Enter Org Workspace' },
+    // 角色 = 你是谁（门票）
+    roles: {
+      initiator: {
+        name: zh ? '发起角色' : 'Originator',
+        desc: zh ? '以融资者身份发起投资机会，上传经营数据' : 'Originate deals as a fundraiser, upload business data',
+        action: zh ? '去发起机会' : 'Originate a Deal',
+        target: zh ? '发起通' : 'Originate Connect',
+        icon: 'fa-rocket',
+      },
+      participant: {
+        name: zh ? '参与角色' : 'Participant',
+        desc: zh ? '以投资者身份浏览、筛选和参与投资机会' : 'Browse, filter, and participate in investment deals',
+        action: zh ? '去看机会' : 'Browse Deals',
+        target: zh ? '参与通' : 'Deal Connect',
+        icon: 'fa-search-dollar',
+      },
+      organization: {
+        name: zh ? '机构角色' : 'Institution',
+        desc: zh ? '以机构身份批量管理机会，自定义工作流' : 'Manage deals at scale with custom workflows',
+        action: zh ? '进入机构台' : 'Org Workspace',
+        target: zh ? '全部通' : 'All Connects',
+        icon: 'fa-building',
+      },
     },
     entity: {
       title: zh ? '主体认证' : 'Entity Verification',
-      subtitle: zh ? '认证通过后即可进入该主体的协作空间' : 'Access the entity workspace after verification',
+      subtitle: zh ? '认证通过后即可以该主体名义发起投资机会' : 'Originate deals under this entity after verification',
       companyName: zh ? '公司/项目名称' : 'Company/Project Name',
       creditCode: zh ? '统一社会信用代码' : 'Unified Credit Code',
       yourRole: zh ? '你在该主体的角色' : 'Your Role in Entity',
@@ -129,18 +179,25 @@ function T(lang: string) {
       privacy: zh ? '隐私政策' : 'Privacy Policy',
       terms: zh ? '服务条款' : 'Terms of Service',
       backToMain: zh ? '返回主站' : 'Back to Main Site',
-      desc: zh ? '以人为单位的万能工作台 · 解锁身份 · 路由中枢' : 'Universal workspace · Unlock identity · Routing hub',
+      desc: zh ? '统一入口 · 角色解锁 · 路由中枢' : 'Unified entry · Role unlock · Routing hub',
+    },
+    dealStatus: {
+      draft: zh ? '草稿' : 'Draft',
+      pending: zh ? '审核中' : 'Pending',
+      live: zh ? '招募中' : 'Live',
+      closed: zh ? '已关闭' : 'Closed',
+      matched: zh ? '已匹配' : 'Matched',
     },
     connects: [
-      { id: 'identity', name: zh ? '身份通' : 'Identity', color: '#3B82F6', icon: 'fa-id-card', requires: [] as string[], status: 'live' as const, desc: zh ? '统一入口 · 路由中枢' : 'Unified entry · Routing hub' },
-      { id: 'application', name: zh ? '发起通' : 'Originate', color: '#F59E0B', icon: 'fa-upload', requires: ['initiator'], status: 'beta' as const, desc: zh ? '发起融资 · AI打包' : 'Initiate financing · AI packaging' },
+      { id: 'identity', name: zh ? '身份通' : 'Identity', color: '#3B82F6', icon: 'fa-id-card', requires: [] as string[], status: 'live' as const, desc: zh ? '统一入口 · 角色管理' : 'Unified entry · Role management' },
+      { id: 'application', name: zh ? '发起通' : 'Originate', color: '#F59E0B', icon: 'fa-upload', requires: ['initiator'], status: 'beta' as const, desc: zh ? '发起机会 · AI打包' : 'Originate deals · AI packaging' },
       { id: 'assess', name: zh ? '评估通' : 'Assess', color: '#6366F1', icon: 'fa-filter', requires: ['participant'], status: 'beta' as const, desc: zh ? '自建AI筛子' : 'Build AI sieves' },
       { id: 'risk', name: zh ? '风控通' : 'Risk', color: '#6366F1', icon: 'fa-shield-alt', requires: ['participant'], status: 'live' as const, desc: zh ? '风控规则 · 验真' : 'Risk rules · Verification' },
-      { id: 'opportunity', name: zh ? '参与通' : 'Deal', color: '#10B981', icon: 'fa-handshake', requires: ['participant'], status: 'live' as const, desc: zh ? '筛后看板 · 投资决策' : 'Filtered board · Decision' },
+      { id: 'opportunity', name: zh ? '参与通' : 'Deal', color: '#10B981', icon: 'fa-handshake', requires: ['participant'], status: 'live' as const, desc: zh ? '筛后看板 · 参与决策' : 'Deal board · Participate' },
       { id: 'terms', name: zh ? '条款通' : 'Terms', color: '#8B5CF6', icon: 'fa-sliders-h', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '三联动滑块 · 磋商' : 'Triple sliders · Negotiate' },
       { id: 'contract', name: zh ? '合约通' : 'Contract', color: '#8B5CF6', icon: 'fa-file-contract', requires: ['initiator', 'participant'], status: 'beta' as const, desc: zh ? '电子签署 · 合规' : 'E-sign · Compliance' },
-      { id: 'settlement', name: zh ? '结算通' : 'Settlement', color: '#EF4444', icon: 'fa-calculator', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '大账本 · 交易记录' : 'Ledger · Transactions' },
-      { id: 'performance', name: zh ? '履约通' : 'Performance', color: '#EF4444', icon: 'fa-chart-line', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '每日监控 · 回款预警' : 'Monitor · Alerts' },
+      { id: 'settlement', name: zh ? '结算通' : 'Settle', color: '#EF4444', icon: 'fa-calculator', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '大账本 · 交易记录' : 'Ledger · Transactions' },
+      { id: 'performance', name: zh ? '履约通' : 'Perform', color: '#EF4444', icon: 'fa-chart-line', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '每日监控 · 回款预警' : 'Monitor · Alerts' },
     ]
   }
 }
@@ -184,8 +241,8 @@ app.post('/api/user/unlock', async (c) => {
   const u = getUserFromToken(c.req.header('Authorization'))
   if (!u) return c.json({ success: false, message: '未授权' }, 401)
   const { role } = await c.req.json()
-  if (!['initiator', 'participant', 'organization'].includes(role)) return c.json({ success: false, message: '无效的身份类型' }, 400)
-  if (u.identities.find(i => i.role === role)) return c.json({ success: false, message: '该身份已解锁' }, 400)
+  if (!['initiator', 'participant', 'organization'].includes(role)) return c.json({ success: false, message: '无效的角色类型' }, 400)
+  if (u.identities.find(i => i.role === role)) return c.json({ success: false, message: '该角色已解锁' }, 400)
   const identity: Identity = { role, unlockedAt: new Date().toISOString().split('T')[0], status: 'active' }
   u.identities.push(identity)
   return c.json({ success: true, identity })
@@ -207,16 +264,18 @@ app.get('/api/entity/list', (c) => {
   return c.json({ success: true, entities: u.entities })
 })
 
+// 发起的机会
 app.get('/api/deals/initiated', (c) => {
   const u = getUserFromToken(c.req.header('Authorization'))
   if (!u) return c.json({ success: false, message: '未授权' }, 401)
-  return c.json({ success: true, deals: [] })
+  return c.json({ success: true, deals: getInitiatedDeals(u.id) })
 })
 
+// 参与的机会
 app.get('/api/deals/participated', (c) => {
   const u = getUserFromToken(c.req.header('Authorization'))
   if (!u) return c.json({ success: false, message: '未授权' }, 401)
-  return c.json({ success: true, deals: [] })
+  return c.json({ success: true, deals: getParticipatedDeals(u.id) })
 })
 
 
@@ -225,7 +284,7 @@ app.get('/api/deals/participated', (c) => {
 // ═══════════════════════════════════════════
 const LOGO = `<svg width="28" height="28" viewBox="0 0 80 80"><defs><linearGradient id="gt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gt)"/><circle cx="36" cy="44" r="22" fill="url(#gb)" opacity="0.85"/></svg>`
 
-const LOGO_LG = `<svg width="48" height="48" viewBox="0 0 80 80"><defs><linearGradient id="gtl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gbl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gtl)"/><circle cx="36" cy="44" r="22" fill="url(#gbl)" opacity="0.85"/></svg>`
+const LOGO_LG = `<svg width="44" height="44" viewBox="0 0 80 80"><defs><linearGradient id="gtl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gbl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gtl)"/><circle cx="36" cy="44" r="22" fill="url(#gbl)" opacity="0.85"/></svg>`
 
 function shell(title: string, body: string, lang: string): string {
   return `<!DOCTYPE html>
@@ -282,7 +341,6 @@ app.get('/', (c) => {
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
 
-    <!-- Nav -->
     <nav class="navbar-dark" id="navbar">
       <div class="nav-inner">
         <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
@@ -296,23 +354,17 @@ app.get('/', (c) => {
       </div>
     </nav>
 
-    <!-- Main Content -->
     <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px 20px;position:relative;z-index:2;">
       <div style="width:100%;max-width:400px;">
 
-        <!-- Hero Text -->
-        <div style="text-align:center;margin-bottom:44px;">
+        <div style="text-align:center;margin-bottom:40px;">
           <div style="animation:slide-up .7s var(--ease-out-expo) forwards;">
-            <!-- Live pill -->
             <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);margin-bottom:28px;">
               <div style="width:6px;height:6px;border-radius:50%;background:#34c759;animation:pulse-dot 2s infinite;"></div>
               <span style="font-size:11px;color:rgba(255,255,255,0.40);font-weight:500;letter-spacing:0.3px;">${zh ? '滴灌通平台 · 统一入口' : 'Micro Connect · Unified Entry'}</span>
             </div>
 
-            <!-- Logo mark -->
-            <div style="display:flex;justify-content:center;margin-bottom:24px;">
-              ${LOGO_LG}
-            </div>
+            <div style="display:flex;justify-content:center;margin-bottom:24px;">${LOGO_LG}</div>
 
             <h1 style="font-size:30px;font-weight:800;color:rgba(255,255,255,0.95);letter-spacing:-0.5px;line-height:1.25;margin-bottom:12px;">
               ${t.auth.welcome}
@@ -323,10 +375,7 @@ app.get('/', (c) => {
           </div>
         </div>
 
-        <!-- Login Card -->
         <div class="card-glass" style="padding:32px 28px;animation:scale-in .6s var(--ease-out-expo) .15s both;">
-
-          <!-- Tabs -->
           <div style="display:flex;gap:0;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.06);">
             <button class="tab-btn active" onclick="switchTab('phone')" id="tab-phone">
               <i class="fas fa-mobile-alt" style="margin-right:6px;font-size:12px;opacity:0.6;"></i>${t.auth.phoneTab}
@@ -336,7 +385,6 @@ app.get('/', (c) => {
             </button>
           </div>
 
-          <!-- Phone Form -->
           <div id="form-phone">
             <div style="display:flex;gap:8px;margin-bottom:14px;">
               <input type="tel" id="inp-phone" class="input-glass" placeholder="${t.auth.phonePlaceholder}" style="flex:1;">
@@ -345,48 +393,42 @@ app.get('/', (c) => {
             <input type="text" id="inp-code" class="input-glass" placeholder="${t.auth.codePlaceholder}" style="margin-bottom:14px;" maxlength="6">
           </div>
 
-          <!-- Email Form -->
           <div id="form-email" style="display:none;">
             <input type="email" id="inp-email" class="input-glass" placeholder="${t.auth.emailPlaceholder}" style="margin-bottom:14px;">
             <input type="password" id="inp-password" class="input-glass" placeholder="${t.auth.passwordPlaceholder}" style="margin-bottom:14px;">
           </div>
 
-          <!-- Name (new user) -->
           <div id="name-row" style="display:none;">
             <input type="text" id="inp-name" class="input-glass" placeholder="${t.auth.namePlaceholder}" style="margin-bottom:14px;">
           </div>
 
-          <!-- Submit -->
           <button class="btn-primary" style="width:100%;padding:15px;margin-top:4px;" onclick="doSubmit()" id="btn-submit">
             ${t.auth.loginBtn}
           </button>
 
-          <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.20);margin-top:16px;letter-spacing:0.1px;">
-            ${t.auth.noAccount}
-          </p>
+          <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.20);margin-top:16px;">${t.auth.noAccount}</p>
         </div>
 
-        <!-- Demo Hint -->
+        <!-- Demo -->
         <div style="margin-top:20px;padding:14px 18px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:14px;animation:fade-in 1s .4s both;">
           <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.8;">
             <i class="fas fa-flask" style="color:rgba(93,196,179,0.5);margin-right:5px;"></i>
             <strong style="color:rgba(255,255,255,0.35);">Demo</strong>&nbsp;
             ${zh ? '手机 13800001234 / 验证码 123456' : 'Phone 13800001234 / Code 123456'}
-            <br>
-            <span style="margin-left:22px;">${zh ? '邮箱 investor@fund.com / 密码 demo123' : 'Email investor@fund.com / Pass demo123'}</span>
+            <br><span style="margin-left:22px;">${zh ? '邮箱 investor@fund.com / 密码 demo123' : 'Email investor@fund.com / Pass demo123'}</span>
           </p>
         </div>
 
-        <!-- Identity hints -->
+        <!-- Role hints — 正确的业务逻辑 -->
         <div style="display:flex;justify-content:center;gap:8px;margin-top:20px;animation:fade-in 1s .6s both;">
-          <span class="badge-glass" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
-            <i class="fas fa-rocket" style="color:#F59E0B;font-size:9px;"></i>${t.identities.initiator.name}
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
+            <i class="fas fa-rocket" style="color:#F59E0B;font-size:9px;"></i>${zh ? '发起机会' : 'Originate'}
           </span>
           <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
-            <i class="fas fa-search-dollar" style="color:#10B981;font-size:9px;"></i>${t.identities.participant.name}
+            <i class="fas fa-search-dollar" style="color:#10B981;font-size:9px;"></i>${zh ? '参与机会' : 'Participate'}
           </span>
           <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
-            <i class="fas fa-building" style="color:#6366F1;font-size:9px;"></i>${t.identities.organization.name}
+            <i class="fas fa-building" style="color:#6366F1;font-size:9px;"></i>${zh ? '机构管理' : 'Institution'}
           </span>
         </div>
       </div>
@@ -396,7 +438,6 @@ app.get('/', (c) => {
   <script>
   (function(){if(getToken()&&getUser()){window.location.href='/dashboard'+window.location.search}})();
   var currentTab='phone',showName=false;
-
   function switchTab(tab){
     currentTab=tab;
     document.getElementById('tab-phone').classList.toggle('active',tab==='phone');
@@ -404,7 +445,6 @@ app.get('/', (c) => {
     document.getElementById('form-phone').style.display=tab==='phone'?'block':'none';
     document.getElementById('form-email').style.display=tab==='email'?'block':'none';
   }
-
   function sendCode(){
     var p=document.getElementById('inp-phone').value.trim();
     if(!p){showToast('${t.auth.phonePlaceholder}','error');return}
@@ -416,47 +456,22 @@ app.get('/', (c) => {
     var s=60,b=document.getElementById('btn-code');b.disabled=true;
     var iv=setInterval(function(){s--;b.textContent=s+'s';if(s<=0){clearInterval(iv);b.disabled=false;b.textContent='${t.auth.getCode}'}},1000);
   }
-
   async function doSubmit(){
     var btn=document.getElementById('btn-submit');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
     try{
       var body={};
-      if(currentTab==='phone'){
-        body.phone=document.getElementById('inp-phone').value.trim();
-        body.verifyCode=document.getElementById('inp-code').value.trim();
-      } else {
-        body.email=document.getElementById('inp-email').value.trim();
-        body.password=document.getElementById('inp-password').value.trim();
-      }
-
+      if(currentTab==='phone'){body.phone=document.getElementById('inp-phone').value.trim();body.verifyCode=document.getElementById('inp-code').value.trim();}
+      else{body.email=document.getElementById('inp-email').value.trim();body.password=document.getElementById('inp-password').value.trim();}
       var r=await api('/api/auth/login',{method:'POST',body:JSON.stringify(body)});
-      if(r.success){
-        setAuth(r.token,r.user);
-        showToast('${zh ? '登录成功' : 'Welcome back'}','success');
-        setTimeout(function(){window.location.href='/dashboard'+window.location.search},500);
-        return;
-      }
-
+      if(r.success){setAuth(r.token,r.user);showToast('${zh ? '登录成功' : 'Welcome back'}','success');setTimeout(function(){window.location.href='/dashboard'+window.location.search},500);return;}
       if(r.message&&r.message.indexOf('${zh ? '不存在' : 'not exist'}')!==-1){
-        if(!showName){
-          showName=true;
-          document.getElementById('name-row').style.display='block';
-          showToast('${zh ? '新用户，请输入姓名完成注册' : 'New user, enter name to register'}','info');
-          return;
-        }
+        if(!showName){showName=true;document.getElementById('name-row').style.display='block';showToast('${zh ? '新用户，请输入姓名完成注册' : 'New user, enter name to register'}','info');return;}
         body.name=document.getElementById('inp-name').value.trim();
         if(!body.name){showToast('${t.auth.namePlaceholder}','error');return}
         var r2=await api('/api/auth/register',{method:'POST',body:JSON.stringify(body)});
-        if(r2.success){
-          setAuth(r2.token,r2.user);
-          showToast('${zh ? '注册成功' : 'Registered'}','success');
-          setTimeout(function(){window.location.href='/dashboard'+window.location.search},500);
-          return;
-        }
+        if(r2.success){setAuth(r2.token,r2.user);showToast('${zh ? '注册成功' : 'Registered'}','success');setTimeout(function(){window.location.href='/dashboard'+window.location.search},500);return;}
         showToast(r2.message,'error');
-      } else {
-        showToast(r.message||'${zh ? '操作失败' : 'Failed'}','error');
-      }
+      } else {showToast(r.message||'${zh ? '操作失败' : 'Failed'}','error');}
     }catch(e){showToast('${zh ? '网络错误' : 'Network error'}','error')}
     finally{btn.disabled=false;btn.textContent='${t.auth.loginBtn}'}
   }
@@ -467,7 +482,8 @@ app.get('/', (c) => {
 
 
 // ═══════════════════════════════════════════
-// PAGE 2 — 个人工作台 (/dashboard)
+// PAGE 2 — 工作台 (/dashboard)
+// 角色卡片 → 我的机会 → 已认证主体 → 9通导航
 // ═══════════════════════════════════════════
 app.get('/dashboard', (c) => {
   const lang = c.req.query('lang') || 'zh'
@@ -481,27 +497,24 @@ app.get('/dashboard', (c) => {
 
   const connectsHTML = t.connects.map(cn => {
     const light = lightMap[cn.color] || '#f5f5f7'
-    const sl = cn.status === 'live' ? (zh ? '已上线' : 'Live') : cn.status === 'beta' ? 'Beta' : (zh ? '即将' : 'Soon')
+    const sl = cn.status === 'live' ? (zh ? '上线' : 'Live') : cn.status === 'beta' ? 'Beta' : (zh ? '即将' : 'Soon')
     return `
     <div class="connect-item" data-req='${JSON.stringify(cn.requires)}' data-id="${cn.id}" onclick="clickConnect('${cn.id}','${cn.name}')" title="${cn.desc}">
       <div class="connect-icon" style="background:linear-gradient(135deg,${light},${cn.color});">
         <i class="fas ${cn.icon}"></i>
       </div>
-      <span style="font-size:12px;font-weight:600;color:var(--text-primary);">${cn.name}</span>
+      <span style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.3;">${cn.name}</span>
       <span class="connect-status status-${cn.status}">${sl}</span>
     </div>`
   }).join('')
 
   const body = `
-  <!-- Nav -->
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
       <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
         ${LOGO}
         <span class="font-brand" style="font-weight:700;font-size:13px;color:var(--text-primary);letter-spacing:0.8px;">MICRO CONNECT</span>
-        <span class="badge badge-brand" style="font-size:10px;">
-          <i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}
-        </span>
+        <span class="badge badge-brand" style="font-size:10px;"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
       </a>
       <div style="display:flex;align-items:center;gap:8px;">
         <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:7px 12px;font-size:12px;">${t.nav.langLabel}</a>
@@ -515,13 +528,13 @@ app.get('/dashboard', (c) => {
 
   <main style="max-width:960px;margin:0 auto;padding:32px 24px 0;">
 
-    <!-- Welcome Section -->
-    <div class="reveal" style="margin-bottom:40px;">
+    <!-- Welcome -->
+    <div class="reveal" style="margin-bottom:36px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:16px;">
           <div class="avatar-ring"><i class="fas fa-user" style="font-size:20px;color:#fff;"></i></div>
           <div>
-            <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;line-height:1.3;" id="greeting">${t.dashboard.greeting}</h1>
+            <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;" id="greeting">${t.dashboard.greeting}</h1>
             <p style="font-size:13px;color:var(--text-tertiary);margin-top:3px;" id="sub-greeting">${t.dashboard.subtitle}</p>
           </div>
         </div>
@@ -531,50 +544,63 @@ app.get('/dashboard', (c) => {
       </div>
     </div>
 
-    <!-- Identity Cards -->
-    <div class="reveal stagger-1">
+    <!-- Stats Row -->
+    <div class="reveal stagger-1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:36px;" id="stats-row"></div>
+
+    <!-- Role Cards -->
+    <div class="reveal stagger-2">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#b2e8de,#5DC4B3);">
-          <i class="fas fa-fingerprint" style="font-size:13px;color:#fff;"></i>
-        </div>
-        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">${t.dashboard.identitySection}</h2>
+        <div class="section-icon" style="background:linear-gradient(135deg,#b2e8de,#5DC4B3);"><i class="fas fa-fingerprint" style="font-size:13px;color:#fff;"></i></div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.roleSection}</h2>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:36px;" id="identity-cards"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:36px;" id="role-cards"></div>
+    </div>
+
+    <!-- My Deals -->
+    <div class="reveal stagger-3">
+      <div class="section-heading">
+        <div class="section-icon" style="background:linear-gradient(135deg,#fde68a,#F59E0B);"><i class="fas fa-briefcase" style="font-size:13px;color:#fff;"></i></div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.dealSection}</h2>
+      </div>
+
+      <!-- Tabs: Initiated / Participated -->
+      <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--border-light);">
+        <button class="deal-tab active" id="dtab-init" onclick="switchDealTab('init')" style="flex:none;padding:10px 20px;font-size:13px;font-weight:600;color:var(--text-tertiary);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;">
+          <i class="fas fa-rocket" style="margin-right:5px;font-size:11px;color:#F59E0B;"></i>${t.dashboard.initiated}
+          <span id="count-init" style="margin-left:4px;font-size:11px;padding:1px 6px;border-radius:8px;background:rgba(245,158,11,0.08);color:#F59E0B;"></span>
+        </button>
+        <button class="deal-tab" id="dtab-part" onclick="switchDealTab('part')" style="flex:none;padding:10px 20px;font-size:13px;font-weight:600;color:var(--text-tertiary);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;">
+          <i class="fas fa-search-dollar" style="margin-right:5px;font-size:11px;color:#10B981;"></i>${t.dashboard.participated}
+          <span id="count-part" style="margin-left:4px;font-size:11px;padding:1px 6px;border-radius:8px;background:rgba(16,185,129,0.08);color:#10B981;"></span>
+        </button>
+      </div>
+      <div id="deal-list" style="margin-bottom:36px;"></div>
     </div>
 
     <!-- Entities -->
-    <div class="reveal stagger-2">
+    <div class="reveal stagger-4">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#c7d2fe,#6366F1);">
-          <i class="fas fa-building" style="font-size:13px;color:#fff;"></i>
-        </div>
-        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">${t.dashboard.entitySection}</h2>
+        <div class="section-icon" style="background:linear-gradient(135deg,#c7d2fe,#6366F1);"><i class="fas fa-building" style="font-size:13px;color:#fff;"></i></div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.entitySection}</h2>
       </div>
       <div id="entity-list" style="margin-bottom:36px;"></div>
     </div>
 
-    <!-- Divider -->
     <div class="divider"></div>
 
-    <!-- 9 Connects Grid -->
-    <div class="reveal stagger-3">
+    <!-- 9 Connects -->
+    <div class="reveal stagger-5">
       <div class="section-heading">
-        <div class="section-icon" style="background:linear-gradient(135deg,#5DC4B3,#3D8F83);">
-          <i class="fas fa-th" style="font-size:13px;color:#fff;"></i>
-        </div>
-        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">${t.dashboard.quickNav}</h2>
-        <span style="font-size:11px;color:var(--text-quaternary);margin-left:auto;font-weight:500;">${zh ? '9个通 · 产品矩阵' : '9 Connects · Product Matrix'}</span>
+        <div class="section-icon" style="background:linear-gradient(135deg,#5DC4B3,#3D8F83);"><i class="fas fa-th" style="font-size:13px;color:#fff;"></i></div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.quickNav}</h2>
+        <span style="font-size:11px;color:var(--text-quaternary);margin-left:auto;">${zh ? '9个通 · 产品矩阵' : '9 Connects'}</span>
       </div>
       <div class="card" style="padding:24px;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:4px;" id="connects-grid">
-          ${connectsHTML}
-        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:4px;">${connectsHTML}</div>
       </div>
     </div>
-
   </main>
 
-  <!-- Footer -->
   <footer class="footer-aurora" style="padding:48px 24px 32px;margin-top:64px;position:relative;">
     <div style="max-width:960px;margin:0 auto;position:relative;z-index:1;">
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
@@ -596,50 +622,141 @@ app.get('/dashboard', (c) => {
   <script>
   var LANG=getLang();
   var tt=function(z,e){return LANG==='en'?e:z};
+  var STATUS_MAP={draft:tt('草稿','Draft'),pending:tt('审核中','Pending'),live:tt('招募中','Live'),closed:tt('已关闭','Closed'),matched:tt('已匹配','Matched')};
+  var STATUS_COLOR={draft:'#86868b',pending:'#F59E0B',live:'#34c759',closed:'#86868b',matched:'#6366F1'};
 
   var ROLES={
-    initiator:{name:tt('发起身份','Initiator'),icon:'fa-rocket',desc:tt('上传经营数据，发起融资申请','Upload data, initiate financing'),target:tt('发起通','Originate Connect'),cta:tt('进入发起通','Enter Originate'),gradient:'ic-initiator'},
-    participant:{name:tt('参与身份','Participant'),icon:'fa-search-dollar',desc:tt('浏览投资项目，搭建评估筛子','Browse deals, build assessment sieves'),target:tt('参与通','Deal Connect'),cta:tt('进入参与通','Enter Deal'),gradient:'ic-participant'},
-    organization:{name:tt('机构身份','Organization'),icon:'fa-building',desc:tt('机构级批量操作和自定义工作流','Institutional batch operations & workflows'),target:tt('全部通','All Connects'),cta:tt('进入机构工作台','Enter Org Workspace'),gradient:'ic-organization'}
+    initiator:{name:tt('发起角色','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator'},
+    participant:{name:tt('参与角色','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant'},
+    organization:{name:tt('机构角色','Institution'),icon:'fa-building',desc:tt('以机构身份批量管理机会，自定义工作流','Manage deals at scale with custom workflows'),action:tt('进入机构台','Org Workspace'),target:tt('全部通','All Connects'),gradient:'ic-organization'}
   };
 
-  (function init(){
+  var initiatedDeals=[], participatedDeals=[], currentDealTab='init';
+
+  (async function init(){
     if(!getToken()||!getUser()){window.location.href='/'+window.location.search;return}
     var u=getUser();
     document.getElementById('greeting').textContent=tt('你好，','Hello, ')+u.name;
-    document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt+' · '+u.identities.length+tt(' 个身份已解锁',' identities unlocked');
+    document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt;
     var nu=document.getElementById('nav-user');if(nu)nu.textContent=u.name;
-    renderCards(u);
+
+    // Fetch deals
+    try{
+      var r1=await api('/api/deals/initiated');
+      if(r1.success) initiatedDeals=r1.deals;
+      var r2=await api('/api/deals/participated');
+      if(r2.success) participatedDeals=r2.deals;
+    }catch(e){}
+
+    renderStats(u);
+    renderRoles(u);
+    renderDeals();
     renderEntities(u);
     updateConnects(u);
   })();
 
-  function renderCards(user){
-    var c=document.getElementById('identity-cards');
+  function renderStats(user){
+    var c=document.getElementById('stats-row');
+    var items=[
+      {label:tt('已解锁角色','Roles'),value:user.identities.length,icon:'fa-fingerprint',color:'#5DC4B3'},
+      {label:tt('发起机会','Originated'),value:initiatedDeals.length,icon:'fa-rocket',color:'#F59E0B'},
+      {label:tt('参与机会','Participated'),value:participatedDeals.length,icon:'fa-search-dollar',color:'#10B981'},
+      {label:tt('认证主体','Entities'),value:user.entities.length,icon:'fa-building',color:'#6366F1'},
+    ];
+    c.innerHTML=items.map(function(s){
+      return '<div class="card" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">'+
+        '<div style="width:40px;height:40px;border-radius:12px;background:'+s.color+'12;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
+          '<i class="fas '+s.icon+'" style="font-size:15px;color:'+s.color+';"></i>'+
+        '</div>'+
+        '<div>'+
+          '<div style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;">'+s.value+'</div>'+
+          '<div style="font-size:11px;color:var(--text-tertiary);font-weight:500;">'+s.label+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  function renderRoles(user){
+    var c=document.getElementById('role-cards');
     var roles=['initiator','participant','organization'];
     c.innerHTML=roles.map(function(role){
       var m=ROLES[role];
       var id=user.identities.find(function(i){return i.role===role});
       var ok=!!id;
       return '<div class="identity-card '+(ok?m.gradient:'ic-locked')+'">'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">'+
-          '<div style="width:44px;height:44px;border-radius:13px;background:'+(ok?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
-            '<i class="fas '+m.icon+'" style="font-size:18px;color:'+(ok?'rgba(0,0,0,0.5)':'var(--text-quaternary)')+';"></i>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
+          '<div style="width:42px;height:42px;border-radius:12px;background:'+(ok?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
+            '<i class="fas '+m.icon+'" style="font-size:17px;color:'+(ok?'rgba(0,0,0,0.5)':'var(--text-quaternary)')+';"></i>'+
           '</div>'+
           (ok
-            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,0.35);font-size:10px;font-weight:600;color:rgba(0,0,0,0.5);backdrop-filter:blur(4px);"><i class="fas fa-check-circle" style="font-size:9px;color:#16a34a;"></i>'+tt('已解锁','Unlocked')+'</span>'
-            : '<span style="font-size:10px;color:var(--text-quaternary);font-weight:500;letter-spacing:0.2px;">'+tt('未解锁','Locked')+'</span>'
+            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.35);font-size:10px;font-weight:600;color:rgba(0,0,0,0.5);"><i class="fas fa-check-circle" style="font-size:9px;color:#16a34a;"></i>'+tt('已解锁','Unlocked')+'</span>'
+            : '<span style="font-size:10px;color:var(--text-quaternary);font-weight:500;">'+tt('未解锁','Locked')+'</span>'
           )+
         '</div>'+
-        '<h3 style="font-size:16px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.70)':'var(--text-secondary)')+';margin-bottom:4px;letter-spacing:-0.2px;">'+m.name+'</h3>'+
-        '<p style="font-size:12px;color:'+(ok?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:18px;line-height:1.6;">'+m.desc+'</p>'+
+        '<h3 style="font-size:15px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.70)':'var(--text-secondary)')+';margin-bottom:4px;">'+m.name+'</h3>'+
+        '<p style="font-size:11px;color:'+(ok?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:16px;line-height:1.6;">'+m.desc+'</p>'+
         (ok
           ? '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-              '<span style="font-size:10px;color:rgba(0,0,0,0.25);font-weight:500;">'+id.unlockedAt+'</span>'+
-              '<button class="btn-card-action" onclick="enterConnect(&quot;'+role+'&quot;)">'+m.cta+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
+              '<span style="font-size:10px;color:rgba(0,0,0,0.25);">'+id.unlockedAt+'</span>'+
+              '<button class="btn-card-action" onclick="goConnect(&quot;'+role+'&quot;)">'+m.action+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
             '</div>'
-          : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;font-size:11px;"></i>'+tt('解锁此身份','Unlock Role')+'</button>'
+          : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;font-size:11px;"></i>'+tt('解锁此角色','Unlock Role')+'</button>'
         )+
+      '</div>';
+    }).join('');
+  }
+
+  function switchDealTab(tab){
+    currentDealTab=tab;
+    document.getElementById('dtab-init').classList.toggle('active',tab==='init');
+    document.getElementById('dtab-part').classList.toggle('active',tab==='part');
+    document.getElementById('dtab-init').style.color=tab==='init'?'var(--text-primary)':'var(--text-tertiary)';
+    document.getElementById('dtab-part').style.color=tab==='part'?'var(--text-primary)':'var(--text-tertiary)';
+    document.getElementById('dtab-init').style.borderBottomColor=tab==='init'?'#F59E0B':'transparent';
+    document.getElementById('dtab-part').style.borderBottomColor=tab==='part'?'#10B981':'transparent';
+    renderDeals();
+  }
+
+  function renderDeals(){
+    var c=document.getElementById('deal-list');
+    var list=currentDealTab==='init'?initiatedDeals:participatedDeals;
+    document.getElementById('count-init').textContent=initiatedDeals.length;
+    document.getElementById('count-part').textContent=participatedDeals.length;
+    // Activate first tab style on init
+    if(currentDealTab==='init'){
+      document.getElementById('dtab-init').style.color='var(--text-primary)';
+      document.getElementById('dtab-init').style.borderBottomColor='#F59E0B';
+    }
+
+    if(!list.length){
+      var msg=currentDealTab==='init'?tt('${t.dashboard.noDealInit}','${t.dashboard.noDealInit}'):tt('${t.dashboard.noDealPart}','${t.dashboard.noDealPart}');
+      var hint=currentDealTab==='init'?tt('解锁发起角色 → 认证主体 → 去发起通上传数据','Unlock originator → verify entity → upload data'):tt('解锁参与角色后，可在参与通浏览和筛选机会','Unlock participant to browse deals');
+      c.innerHTML='<div class="card" style="padding:32px;text-align:center;">'+
+        '<i class="fas fa-briefcase" style="font-size:24px;color:var(--text-quaternary);margin-bottom:12px;display:block;"></i>'+
+        '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">'+msg+'</p>'+
+        '<p style="font-size:11px;color:var(--text-quaternary);line-height:1.6;">'+hint+'</p></div>';
+      return;
+    }
+
+    c.innerHTML=list.map(function(d){
+      var sc=STATUS_COLOR[d.status]||'#86868b';
+      var sl=STATUS_MAP[d.status]||d.status;
+      return '<div class="card" style="padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">'+
+        '<div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">'+
+          '<div style="width:40px;height:40px;border-radius:11px;background:'+(currentDealTab==='init'?'linear-gradient(135deg,#fef3c7,#fbbf24)':'linear-gradient(135deg,#d1fae5,#10b981)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
+            '<i class="fas '+(currentDealTab==='init'?'fa-rocket':'fa-search-dollar')+'" style="font-size:14px;color:rgba(0,0,0,0.45);"></i>'+
+          '</div>'+
+          '<div style="min-width:0;flex:1;">'+
+            '<div style="font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+d.title+'</div>'+
+            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;">'+d.industry+' · '+d.amount+' · '+d.period+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;">'+
+          '<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;background:'+sc+'12;font-size:10px;font-weight:600;color:'+sc+';">'+
+            '<span style="width:5px;height:5px;border-radius:50%;background:'+sc+';"></span>'+sl+
+          '</span>'+
+          '<span style="font-size:10px;color:var(--text-quaternary);">'+d.createdAt+'</span>'+
+        '</div>'+
       '</div>';
     }).join('');
   }
@@ -647,24 +764,23 @@ app.get('/dashboard', (c) => {
   function renderEntities(user){
     var c=document.getElementById('entity-list');
     if(!user.entities||!user.entities.length){
-      c.innerHTML='<div class="card" style="padding:36px;text-align:center;">'+
-        '<div style="width:48px;height:48px;border-radius:14px;background:rgba(99,102,241,0.06);display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;">'+
-          '<i class="fas fa-building" style="font-size:20px;color:var(--text-quaternary);"></i>'+
-        '</div>'+
-        '<p style="font-size:14px;color:var(--text-secondary);margin-bottom:4px;font-weight:500;">'+tt('暂无已认证主体','No verified entities yet')+'</p>'+
-        '<p style="font-size:12px;color:var(--text-quaternary);">'+tt('认证主体后可进入协作空间','Verify an entity to access workspace')+'</p></div>';
+      c.innerHTML='<div class="card" style="padding:32px;text-align:center;">'+
+        '<div style="width:44px;height:44px;border-radius:13px;background:rgba(99,102,241,0.06);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">'+
+          '<i class="fas fa-building" style="font-size:18px;color:var(--text-quaternary);"></i></div>'+
+        '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">'+tt('暂无已认证主体','No verified entities yet')+'</p>'+
+        '<p style="font-size:11px;color:var(--text-quaternary);">'+tt('认证主体后可发起融资机会','Verify an entity to originate deals')+'</p></div>';
       return;
     }
     c.innerHTML=user.entities.map(function(e){
-      return '<div class="card" style="padding:18px 22px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">'+
-        '<div style="display:flex;align-items:center;gap:14px;">'+
-          '<div style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#eef2ff,#c7d2fe);display:flex;align-items:center;justify-content:center;"><i class="fas fa-store" style="font-size:15px;color:#6366f1;"></i></div>'+
+      return '<div class="card" style="padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">'+
+        '<div style="display:flex;align-items:center;gap:12px;">'+
+          '<div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#eef2ff,#c7d2fe);display:flex;align-items:center;justify-content:center;"><i class="fas fa-store" style="font-size:14px;color:#6366f1;"></i></div>'+
           '<div>'+
-            '<div style="font-size:14px;font-weight:600;color:var(--text-primary);">'+e.entityName+'</div>'+
-            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;"><i class="fas fa-user-tag" style="margin-right:3px;font-size:10px;"></i>'+e.role+' · '+e.verifiedAt+'</div>'+
+            '<div style="font-size:13px;font-weight:600;color:var(--text-primary);">'+e.entityName+'</div>'+
+            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;"><i class="fas fa-user-tag" style="margin-right:3px;font-size:9px;"></i>'+e.role+' · '+e.verifiedAt+'</div>'+
           '</div>'+
         '</div>'+
-        '<button class="btn-ghost" style="font-size:11px;padding:7px 14px;" onclick="showToast(&quot;'+tt('协作空间开发中','Workspace coming soon')+'&quot;,&quot;info&quot;)"><i class="fas fa-arrow-right" style="margin-right:4px;font-size:10px;"></i>'+tt('进入空间','Workspace')+'</button>'+
+        '<button class="btn-ghost" style="font-size:11px;padding:6px 12px;" onclick="showToast(&quot;'+tt('协作空间开发中','Workspace coming soon')+'&quot;,&quot;info&quot;)"><i class="fas fa-arrow-right" style="margin-right:3px;font-size:9px;"></i>'+tt('进入','Enter')+'</button>'+
       '</div>';
     }).join('');
   }
@@ -677,7 +793,6 @@ app.get('/dashboard', (c) => {
       var id=el.getAttribute('data-id');
       var ok=id==='identity'||isOrg||req.length===0||req.some(function(r){return roles.includes(r)});
       el.classList.toggle('disabled',!ok);
-      if(!ok)el.title=tt('需先解锁对应身份','Unlock required identity first');
     });
   }
 
@@ -685,20 +800,19 @@ app.get('/dashboard', (c) => {
     var r=await api('/api/user/unlock',{method:'POST',body:JSON.stringify({role:role})});
     if(r.success){
       var u=getUser();u.identities.push(r.identity);localStorage.setItem('ic_user',JSON.stringify(u));
-      showToast(tt('身份解锁成功','Role unlocked!'),'success');
-      renderCards(u);updateConnects(u);
-      document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt+' · '+u.identities.length+tt(' 个身份已解锁',' identities unlocked');
+      showToast(tt('角色解锁成功','Role unlocked!'),'success');
+      renderStats(u);renderRoles(u);updateConnects(u);
     } else showToast(r.message,'error');
   }
 
-  function enterConnect(role){
+  function goConnect(role){
     var m=ROLES[role];
     showToast(tt('即将跳转到'+m.target+'（开发中）','Redirecting to '+m.target+' (coming soon)'),'info');
   }
   function clickConnect(id,name){
     if(id==='identity'){showToast(tt('你已在身份通','You are in Identity Connect'),'info');return}
     var el=document.querySelector('[data-id="'+id+'"]');
-    if(el&&el.classList.contains('disabled')){showToast(tt('需先解锁对应身份','Unlock required role first'),'error');return}
+    if(el&&el.classList.contains('disabled')){showToast(tt('需先解锁对应角色','Unlock required role first'),'error');return}
     showToast(tt('即将跳转到'+name+'（开发中）','Redirecting to '+name+' (coming soon)'),'info');
   }
   </script>`
@@ -723,15 +837,12 @@ app.get('/entity-verify', (c) => {
   ]
 
   const body = `
-  <!-- Nav -->
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
       <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
         ${LOGO}
         <span class="font-brand" style="font-weight:700;font-size:13px;color:var(--text-primary);letter-spacing:0.8px;">MICRO CONNECT</span>
-        <span class="badge badge-brand" style="font-size:10px;">
-          <i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}
-        </span>
+        <span class="badge badge-brand" style="font-size:10px;"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
       </a>
       <div style="display:flex;align-items:center;gap:8px;">
         <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:7px 12px;font-size:12px;">${t.nav.langLabel}</a>
@@ -744,20 +855,18 @@ app.get('/entity-verify', (c) => {
   </nav>
 
   <main style="max-width:520px;margin:0 auto;padding:32px 20px 0;">
-    <!-- Breadcrumb -->
     <div class="reveal" style="margin-bottom:24px;">
       <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--brand-dark);text-decoration:none;font-weight:500;transition:opacity .2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
         <i class="fas fa-arrow-left" style="font-size:11px;"></i>${t.entity.backToDash}
       </a>
     </div>
 
-    <!-- Form Card -->
     <div class="card reveal stagger-1" style="padding:36px 28px;">
       <div style="text-align:center;margin-bottom:32px;">
         <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#e0e7ff,#6366F1);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 16px rgba(99,102,241,0.15);">
           <i class="fas fa-building" style="font-size:22px;color:#fff;"></i>
         </div>
-        <h1 style="font-size:20px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;">${t.entity.title}</h1>
+        <h1 style="font-size:20px;font-weight:800;color:var(--text-primary);">${t.entity.title}</h1>
         <p style="font-size:13px;color:var(--text-tertiary);margin-top:6px;">${t.entity.subtitle}</p>
       </div>
 
@@ -779,7 +888,7 @@ app.get('/entity-verify', (c) => {
         <label style="font-size:12px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:7px;">${t.entity.uploadProof}</label>
         <div class="upload-zone">
           <i class="fas fa-cloud-upload-alt" style="font-size:24px;color:var(--text-quaternary);margin-bottom:8px;display:block;"></i>
-          <p style="font-size:12px;color:var(--text-tertiary);line-height:1.6;">${zh ? '营业执照 / 授权书等' : 'Business license / authorization'}</p>
+          <p style="font-size:12px;color:var(--text-tertiary);">${zh ? '营业执照 / 授权书等' : 'Business license / authorization'}</p>
           <p style="font-size:11px;color:var(--text-quaternary);margin-top:4px;">${zh ? 'Demo 阶段可跳过' : 'Skip for Demo'}</p>
         </div>
       </div>
@@ -788,7 +897,6 @@ app.get('/entity-verify', (c) => {
       </button>
     </div>
 
-    <!-- Demo Hint -->
     <div class="reveal stagger-2" style="margin-top:16px;padding:12px 16px;background:rgba(93,196,179,0.03);border:1px solid rgba(93,196,179,0.08);border-radius:12px;">
       <p style="font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:6px;">
         <i class="fas fa-flask" style="color:var(--brand);font-size:10px;"></i>
@@ -797,7 +905,6 @@ app.get('/entity-verify', (c) => {
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="footer-aurora" style="padding:48px 24px 32px;margin-top:64px;position:relative;">
     <div style="max-width:960px;margin:0 auto;position:relative;z-index:1;">
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
@@ -805,13 +912,7 @@ app.get('/entity-verify', (c) => {
         <span class="font-brand" style="color:rgba(255,255,255,0.75);font-weight:700;font-size:14px;letter-spacing:1px;">MICRO CONNECT</span>
       </div>
       <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:6px;">${t.nav.title} · Identity Connect</p>
-      <p style="text-align:center;font-size:11px;color:rgba(255,255,255,0.15);margin-bottom:24px;">${t.footer.desc}</p>
-      <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:20px;">
-        <a href="https://microconnect.com" class="footer-link">${t.footer.backToMain}</a>
-        <a href="#" class="footer-link">${t.footer.privacy}</a>
-        <a href="#" class="footer-link">${t.footer.terms}</a>
-      </div>
-      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);margin-bottom:16px;"></div>
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);margin:20px 0 16px;"></div>
       <p style="text-align:center;color:rgba(255,255,255,0.12);font-size:10px;">${t.footer.copyright}</p>
     </div>
   </footer>
