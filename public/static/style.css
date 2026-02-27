@@ -1,0 +1,397 @@
+/* ═══════════════════════════════════════════════════════
+   Identity Connect — Design Tokens & Custom CSS
+   Version: V3.0 | Micro Connect Design System
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── Brand Colors ─── */
+  --brand: #5DC4B3;
+  --brand-light: #7DD4C7;
+  --brand-dark: #3D8F83;
+  --brand-accent: #49A89A;
+  --logo-bright: #2EC4B6;
+  --logo-bright2: #3DD8CA;
+  --logo-deep: #28A696;
+
+  /* ─── Identity Connect Colors ─── */
+  --identity-light: #DBEAFE;
+  --identity: #3B82F6;
+  --identity-dark: #2563EB;
+
+  /* ─── Semantic Colors ─── */
+  --semantic-info: #32ade6;
+  --semantic-success: #34c759;
+  --semantic-warning: #ff9f0a;
+  --semantic-error: #ff375f;
+  --semantic-indigo: #6366F1;
+  --semantic-violet: #8B5CF6;
+
+  /* ─── Text Hierarchy ─── */
+  --text-primary: #1d1d1f;
+  --text-title: #1a1a1a;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --text-placeholder: #aeaeb2;
+
+  /* ─── Background ─── */
+  --bg-page: #f5f5f7;
+  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-navbar: rgba(255, 255, 255, 0.92);
+  --bg-modal-footer: #f8fafc;
+  --bg-divider: #f1f5f9;
+
+  /* ─── Borders ─── */
+  --border-default: rgba(0, 0, 0, 0.06);
+  --border-input: rgba(0, 0, 0, 0.12);
+  --border-hover: rgba(59, 130, 246, 0.2);
+  --border-focus: #3B82F6;
+
+  /* ─── Shadows (Apple Style Multi-Layer) ─── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 8px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.08);
+  --shadow-xl: 0 8px 16px rgba(0,0,0,0.06), 0 24px 64px rgba(0,0,0,0.1);
+  --shadow-card: 0 1px 1px rgba(0,0,0,0.02), 0 2px 4px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.05);
+  --shadow-card-hover: 0 4px 8px rgba(0,0,0,0.04), 0 16px 48px rgba(59,130,246,0.1);
+
+  /* ─── Animation ─── */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --duration-fast: 180ms;
+  --duration-normal: 280ms;
+  --duration-slow: 420ms;
+  --duration-slower: 600ms;
+
+  /* ─── Gradients ─── */
+  --gradient-primary: linear-gradient(135deg, #5DC4B3 0%, #49A89A 100%);
+  --gradient-cyber: linear-gradient(135deg, #0a2e2a 0%, #0f3d36 50%, #164e47 100%);
+  --gradient-aurora: radial-gradient(ellipse 120% 80% at 50% 45%, #13524a 0%, #0f3d36 30%, #0b312c 55%, #082420 80%, #061b18 100%);
+  --gradient-identity: linear-gradient(135deg, #DBEAFE 0%, #3B82F6 100%);
+}
+
+/* ─── Base Styles ─── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Card Hover Effect ─── */
+.card-hover {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--duration-normal) var(--ease-spring),
+              box-shadow var(--duration-normal) var(--ease-spring),
+              border-color var(--duration-normal) var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--border-hover);
+}
+
+/* ─── Scroll Reveal Animation ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stagger-1 { transition-delay: 0.05s; }
+.stagger-2 { transition-delay: 0.10s; }
+.stagger-3 { transition-delay: 0.15s; }
+.stagger-4 { transition-delay: 0.20s; }
+.stagger-5 { transition-delay: 0.25s; }
+
+/* ─── Navbar ─── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 56px;
+  background: var(--bg-navbar);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 0.5px solid var(--border-default);
+  transition: box-shadow var(--duration-normal) var(--ease-smooth);
+}
+.navbar.scrolled {
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Footer Aurora ─── */
+.footer-aurora {
+  background: radial-gradient(ellipse 130% 90% at 50% 20%, #0f3d36 0%, #0b312c 40%, #082420 70%, #061b18 100%);
+}
+
+/* ─── Dot Pattern ─── */
+.dot-pattern {
+  background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* ─── Input Focus Ring ─── */
+.input-field {
+  border: 1px solid var(--border-input);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  width: 100%;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+  background: white;
+  color: var(--text-primary);
+}
+.input-field::placeholder {
+  color: var(--text-placeholder);
+}
+.input-field:hover {
+  border-color: var(--border-hover);
+}
+.input-field:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* ─── Primary Button (Identity Blue) ─── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  background: var(--identity);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover {
+  background: var(--identity-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ─── Ghost Button ─── */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--brand);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+.btn-ghost:hover {
+  background: rgba(93, 196, 179, 0.08);
+  border-color: var(--brand);
+}
+
+/* ─── Tab Styles ─── */
+.tab-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+.tab-btn:hover {
+  color: var(--text-primary);
+}
+.tab-btn.active {
+  color: var(--identity);
+  border-bottom-color: var(--identity);
+  font-weight: 600;
+}
+
+/* ─── Toast Notification ─── */
+.toast {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  opacity: 0;
+  transition: all var(--duration-normal) var(--ease-spring);
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.toast.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.toast.info {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+/* ─── Identity Card Specific ─── */
+.identity-card {
+  padding: 24px;
+  border-radius: 20px;
+  transition: all var(--duration-normal) var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+.identity-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-identity);
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+.identity-card:hover::before {
+  opacity: 1;
+}
+.identity-card.unlocked {
+  background: rgba(219, 234, 254, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}
+.identity-card.locked {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+}
+
+/* ─── Connect Grid Item ─── */
+.connect-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+  text-align: center;
+}
+.connect-item:hover:not(.disabled) {
+  background: rgba(59, 130, 246, 0.06);
+  transform: translateY(-2px);
+}
+.connect-item.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.connect-item .connect-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  transition: transform var(--duration-fast) var(--ease-bounce);
+}
+.connect-item:hover:not(.disabled) .connect-icon {
+  transform: scale(1.08);
+}
+
+/* ─── Brand Font ─── */
+.font-brand {
+  font-family: 'Montserrat', 'Inter', 'Futura', 'Helvetica Neue', sans-serif;
+}
+
+/* ─── Scrollbar Styles ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* ─── Code Verification Input ─── */
+.verify-code-btn {
+  padding: 12px 16px;
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--identity);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+.verify-code-btn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.15);
+}
+.verify-code-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Loading spinner ─── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .identity-card { padding: 16px; }
+  .navbar { height: 48px; }
+}
