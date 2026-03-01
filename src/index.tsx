@@ -130,6 +130,7 @@ function T(lang: string) {
       dealSection: zh ? '我的机会' : 'My Deals',
       quickNav: zh ? '产品导航' : 'Product Navigation',
       addEntity: zh ? '+ 认证新主体' : '+ Verify New Entity',
+      addOrgRole: zh ? '+ 添加机构身份' : '+ Add Org Role',
       noEntities: zh ? '暂无已认证主体' : 'No verified entities yet',
       verifyHint: zh ? '认证主体后可发起融资机会' : 'Verify an entity to originate deals',
       initiated: zh ? '我发起的机会' : 'Deals I Originated',
@@ -156,16 +157,16 @@ function T(lang: string) {
         icon: 'fa-search-dollar',
       },
       organization: {
-        name: zh ? '机构角色' : 'Institution',
-        desc: zh ? '以机构身份批量管理机会，自定义工作流' : 'Manage deals at scale with custom workflows',
-        action: zh ? '进入机构台' : 'Org Workspace',
+        name: zh ? '机构身份' : 'Institution',
+        desc: zh ? '以机构身份管理机会，一个人可以在多个机构担任角色' : 'Manage deals as an institution, one person can hold multiple org roles',
+        action: zh ? '添加机构身份' : 'Add Org Role',
         target: zh ? '全部通' : 'All Connects',
         icon: 'fa-building',
       },
     },
     entity: {
-      title: zh ? '主体认证' : 'Entity Verification',
-      subtitle: zh ? '认证通过后即可以该主体名义发起投资机会' : 'Originate deals under this entity after verification',
+      title: zh ? '添加机构身份' : 'Add Org Role',
+      subtitle: zh ? '认证你在该机构的身份，通过后即可以该机构名义管理机会' : 'Verify your role in an institution to manage deals under it',
       companyName: zh ? '公司/项目名称' : 'Company/Project Name',
       creditCode: zh ? '统一社会信用代码' : 'Unified Credit Code',
       yourRole: zh ? '你在该主体的角色' : 'Your Role in Entity',
@@ -255,7 +256,12 @@ app.post('/api/entity/verify', async (c) => {
   if (!entityName || !role) return c.json({ success: false, message: '请填写完整信息' }, 400)
   const entity: EntityAuth = { entityId: `e-${String(Date.now()).slice(-6)}`, entityName, role, verifiedAt: new Date().toISOString().split('T')[0] }
   u.entities.push(entity)
-  return c.json({ success: true, entity })
+  // Auto-unlock organization identity when first entity is verified
+  if (!u.identities.find(i => i.role === 'organization')) {
+    const orgIdentity: Identity = { role: 'organization', unlockedAt: new Date().toISOString().split('T')[0], status: 'active' }
+    u.identities.push(orgIdentity)
+  }
+  return c.json({ success: true, entity, user: { ...u, password: undefined } })
 })
 
 app.get('/api/entity/list', (c) => {
@@ -652,7 +658,7 @@ app.get('/dashboard', (c) => {
   var ROLES={
     initiator:{name:tt('发起机会','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator',tagColor:'#3D8F83',tagBg:'rgba(61,143,131,0.12)'},
     participant:{name:tt('参与机会','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant',tagColor:'#2d7a6e',tagBg:'rgba(45,122,110,0.12)'},
-    organization:{name:tt('机构管理','Institution'),icon:'fa-building',desc:tt('以机构身份批量管理机会，自定义工作流','Manage deals at scale with custom workflows'),action:tt('进入机构台','Org Workspace'),target:tt('全部通','All Connects'),gradient:'ic-organization',tagColor:'#6366F1',tagBg:'rgba(99,102,241,0.12)'}
+    organization:{name:tt('机构身份','Institution'),icon:'fa-building',desc:tt('以机构身份管理机会，一个人可以在多个机构担任角色','Manage deals as institution, hold multiple org roles'),action:tt('添加机构身份','Add Org Role'),target:tt('全部通','All Connects'),gradient:'ic-organization',tagColor:'#6366F1',tagBg:'rgba(99,102,241,0.12)'}
   };
 
   var initiatedDeals=[], participatedDeals=[], currentDealTab='init';
@@ -718,13 +724,14 @@ app.get('/dashboard', (c) => {
 
   function renderRoles(user){
     var c=document.getElementById('role-cards');
-    var roles=['initiator','participant','organization'];
-    c.innerHTML=roles.map(function(role){
+    var personalRoles=['initiator','participant'];
+    
+    // Render personal roles (initiator, participant) — simple unlock
+    var html=personalRoles.map(function(role){
       var m=ROLES[role];
       var id=user.identities.find(function(i){return i.role===role});
       var ok=!!id;
-      // Count deals for this role
-      var dealCount=role==='initiator'?initiatedDeals.length:(role==='participant'?participatedDeals.length:(initiatedDeals.length+participatedDeals.length));
+      var dealCount=role==='initiator'?initiatedDeals.length:participatedDeals.length;
       return '<div class="identity-card '+(ok?m.gradient:'ic-locked')+'">'+
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
           '<div style="width:44px;height:44px;border-radius:13px;background:'+(ok?'rgba(255,255,255,0.30)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;box-shadow:'+(ok?'0 2px 8px rgba(0,0,0,0.06)':'none')+';backdrop-filter:blur(8px);">'+
@@ -746,6 +753,55 @@ app.get('/dashboard', (c) => {
         )+
       '</div>';
     }).join('');
+    
+    // Render organization card — special: shows entity list + add button
+    var orgM=ROLES.organization;
+    var entities=user.entities||[];
+    var entityCount=entities.length;
+    var langQ=LANG==='en'?'?lang=en':'';
+    
+    html+='<div class="identity-card '+(entityCount>0?orgM.gradient:'ic-locked')+'">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
+        '<div style="width:44px;height:44px;border-radius:13px;background:'+(entityCount>0?'rgba(255,255,255,0.30)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;box-shadow:'+(entityCount>0?'0 2px 8px rgba(0,0,0,0.06)':'none')+';backdrop-filter:blur(8px);">'+
+          '<i class="fas '+orgM.icon+'" style="font-size:18px;color:'+(entityCount>0?'rgba(0,0,0,0.55)':'var(--text-quaternary)')+';"></i>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;">'+
+          (entityCount>0
+            ?'<span class="micro-badge" style="background:rgba(255,255,255,0.40);color:rgba(0,0,0,0.50);"><i class="fas fa-building" style="font-size:8px;color:#6366F1;"></i>'+entityCount+tt(' 个机构',' orgs')+'</span>'
+            :'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);"><i class="fas fa-building" style="font-size:8px;"></i>'+tt('暂无','None')+'</span>'
+          )+
+        '</div>'+
+      '</div>'+
+      '<h3 style="font-size:16px;font-weight:700;color:'+(entityCount>0?'rgba(0,0,0,0.72)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+orgM.name+'</h3>'+
+      '<p style="font-size:11.5px;color:'+(entityCount>0?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:12px;line-height:1.65;">'+orgM.desc+'</p>';
+    
+    // Show mini entity list inside the card
+    if(entityCount>0){
+      html+='<div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px;">';
+      entities.forEach(function(e){
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:'+(entityCount>0?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.02)')+';backdrop-filter:blur(6px);">'+
+          '<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
+            '<i class="fas fa-store" style="font-size:10px;color:#6366F1;"></i>'+
+          '</div>'+
+          '<div style="flex:1;min-width:0;">'+
+            '<div style="font-size:12px;font-weight:600;color:'+(entityCount>0?'rgba(0,0,0,0.60)':'var(--text-secondary)')+';line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.entityName+'</div>'+
+            '<div style="font-size:10px;color:'+(entityCount>0?'rgba(0,0,0,0.28)':'var(--text-quaternary)')+';"><i class="fas fa-user-tag" style="margin-right:2px;font-size:8px;"></i>'+e.role+'</div>'+
+          '</div>'+
+          '<span style="font-size:9px;color:'+(entityCount>0?'rgba(0,0,0,0.20)':'var(--text-quaternary)')+';white-space:nowrap;">'+e.verifiedAt+'</span>'+
+        '</div>';
+      });
+      html+='</div>';
+    }
+    
+    // Always show add button — links to entity-verify
+    html+='<a href="/entity-verify'+langQ+'" style="text-decoration:none;">'+
+      '<button class="btn-unlock" style="'+(entityCount>0?'border-style:solid;background:rgba(255,255,255,0.30);border-color:rgba(99,102,241,0.20);color:rgba(0,0,0,0.50);':'')+'">'+
+        '<i class="fas fa-plus-circle" style="margin-right:6px;font-size:11px;"></i>'+tt('添加机构身份','Add Org Role')+
+      '</button>'+
+    '</a>'+
+    '</div>';
+    
+    c.innerHTML=html;
   }
 
   function switchDealTab(tab){
@@ -999,8 +1055,10 @@ app.get('/entity-verify', (c) => {
     if(!n){showToast('${zh ? '请填写公司/项目名称' : 'Please enter entity name'}','error');return}
     var res=await api('/api/entity/verify',{method:'POST',body:JSON.stringify({entityName:n,creditCode:c,role:r})});
     if(res.success){
-      var u=getUser();u.entities.push(res.entity);localStorage.setItem('ic_user',JSON.stringify(u));
-      showToast('${zh ? '认证成功' : 'Verified!'}','success');
+      // Update local user with full user data from server (includes new entity + auto-unlocked org identity)
+      if(res.user){localStorage.setItem('ic_user',JSON.stringify(res.user));}
+      else{var u=getUser();u.entities.push(res.entity);localStorage.setItem('ic_user',JSON.stringify(u));}
+      showToast('${zh ? '机构身份认证成功' : 'Org role verified!'}','success');
       setTimeout(function(){window.location.href='/dashboard'+window.location.search},800);
     } else showToast(res.message||'${zh ? '提交失败' : 'Failed'}','error');
   }
