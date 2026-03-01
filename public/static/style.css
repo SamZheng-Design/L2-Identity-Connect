@@ -1107,6 +1107,23 @@ button:focus-visible {
   backdrop-filter: blur(8px);
 }
 
+/* ========== 31. Connect Icon V2 — L1 SVG Style ========== */
+.connect-icon-v2 {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 350ms var(--ease-bounce);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.06));
+}
+.connect-icon-v2 svg {
+  border-radius: 14px;
+  overflow: hidden;
+}
+.connect-item:hover:not(.disabled) .connect-icon-v2 {
+  transform: scale(1.10) rotate(-3deg);
+  filter: drop-shadow(0 4px 12px rgba(93,196,179,0.15));
+}
+
 /* ========== 26. Responsive — v33 precision ========== */
 @media (max-width: 768px) {
   .navbar, .navbar-dark { height: 48px; }

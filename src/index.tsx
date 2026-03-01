@@ -190,15 +190,15 @@ function T(lang: string) {
       matched: zh ? '已匹配' : 'Matched',
     },
     connects: [
-      { id: 'identity', name: zh ? '身份通' : 'Identity', color: '#3B82F6', icon: 'fa-id-card', requires: [] as string[], status: 'live' as const, desc: zh ? '统一入口 · 角色管理' : 'Unified entry · Role management' },
-      { id: 'application', name: zh ? '发起通' : 'Originate', color: '#3D8F83', icon: 'fa-upload', requires: ['initiator'], status: 'beta' as const, desc: zh ? '发起机会 · AI打包' : 'Originate deals · AI packaging' },
-      { id: 'assess', name: zh ? '评估通' : 'Assess', color: '#6366F1', icon: 'fa-filter', requires: ['participant'], status: 'beta' as const, desc: zh ? '自建AI筛子' : 'Build AI sieves' },
-      { id: 'risk', name: zh ? '风控通' : 'Risk', color: '#6366F1', icon: 'fa-shield-alt', requires: ['participant'], status: 'live' as const, desc: zh ? '风控规则 · 验真' : 'Risk rules · Verification' },
-      { id: 'opportunity', name: zh ? '参与通' : 'Deal', color: '#3D8F83', icon: 'fa-handshake', requires: ['participant'], status: 'live' as const, desc: zh ? '筛后看板 · 参与决策' : 'Deal board · Participate' },
-      { id: 'terms', name: zh ? '条款通' : 'Terms', color: '#8B5CF6', icon: 'fa-sliders-h', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '三联动滑块 · 磋商' : 'Triple sliders · Negotiate' },
-      { id: 'contract', name: zh ? '合约通' : 'Contract', color: '#8B5CF6', icon: 'fa-file-contract', requires: ['initiator', 'participant'], status: 'beta' as const, desc: zh ? '电子签署 · 合规' : 'E-sign · Compliance' },
-      { id: 'settlement', name: zh ? '结算通' : 'Settle', color: '#EF4444', icon: 'fa-calculator', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '大账本 · 交易记录' : 'Ledger · Transactions' },
-      { id: 'performance', name: zh ? '履约通' : 'Perform', color: '#EF4444', icon: 'fa-chart-line', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '每日监控 · 回款预警' : 'Monitor · Alerts' },
+      { id: 'identity', name: zh ? '身份通' : 'Identity', char: '身', color: '#5DC4B3', icon: 'fa-id-card', requires: [] as string[], status: 'live' as const, desc: zh ? '统一入口 · 角色管理' : 'Unified entry · Role management' },
+      { id: 'application', name: zh ? '发起通' : 'Originate', char: '发', color: '#F59E0B', icon: 'fa-upload', requires: ['initiator'], status: 'beta' as const, desc: zh ? '发起机会 · AI打包' : 'Originate deals · AI packaging' },
+      { id: 'assess', name: zh ? '评估通' : 'Assess', char: '评', color: '#6366F1', icon: 'fa-filter', requires: ['participant'], status: 'beta' as const, desc: zh ? '自建AI筛子' : 'Build AI sieves' },
+      { id: 'risk', name: zh ? '风控通' : 'Risk', char: '风', color: '#6366F1', icon: 'fa-shield-alt', requires: ['participant'], status: 'live' as const, desc: zh ? '风控规则 · 验真' : 'Risk rules · Verification' },
+      { id: 'opportunity', name: zh ? '参与通' : 'Deal', char: '参', color: '#10B981', icon: 'fa-handshake', requires: ['participant'], status: 'live' as const, desc: zh ? '筛后看板 · 参与决策' : 'Deal board · Participate' },
+      { id: 'terms', name: zh ? '条款通' : 'Terms', char: '条', color: '#8B5CF6', icon: 'fa-sliders-h', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '三联动滑块 · 磋商' : 'Triple sliders · Negotiate' },
+      { id: 'contract', name: zh ? '合约通' : 'Contract', char: '合', color: '#8B5CF6', icon: 'fa-file-contract', requires: ['initiator', 'participant'], status: 'beta' as const, desc: zh ? '电子签署 · 合规' : 'E-sign · Compliance' },
+      { id: 'settlement', name: zh ? '结算通' : 'Settle', char: '结', color: '#10B981', icon: 'fa-calculator', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '大账本 · 交易记录' : 'Ledger · Transactions' },
+      { id: 'performance', name: zh ? '履约通' : 'Perform', char: '履', color: '#10B981', icon: 'fa-chart-line', requires: ['initiator', 'participant'], status: 'coming' as const, desc: zh ? '每日监控 · 回款预警' : 'Monitor · Alerts' },
     ]
   }
 }
@@ -512,13 +512,20 @@ app.get('/dashboard', (c) => {
   }
 
   const connectsHTML = t.connects.map(cn => {
-    const light = lightMap[cn.color] || '#f5f5f7'
     const sl = cn.status === 'live' ? (zh ? '上线' : 'Live') : cn.status === 'beta' ? 'Beta' : (zh ? '即将' : 'Soon')
+    // L1-style SVG logo: white rounded rect + teal brand circles + Chinese character
+    const svgIcon = `<svg viewBox="0 0 100 100" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="gt-${cn.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient>
+      <linearGradient id="gb-${cn.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs>
+      <rect width="100" height="100" rx="18" fill="#FFF" stroke="#E5E7EB" stroke-width="1.5"/>
+      <circle cx="72" cy="26" r="11" fill="url(#gb-${cn.id})" opacity="0.85"/>
+      <circle cx="78" cy="20" r="11" fill="url(#gt-${cn.id})"/>
+      <text x="42" y="62" text-anchor="middle" dominant-baseline="middle" font-family="'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="34" font-weight="700" fill="#1d1d1f">${(cn as any).char || ''}</text>
+      <circle cx="24" cy="82" r="4" fill="#2EC4B6" opacity="0.35"/>
+    </svg>`
     return `
     <div class="connect-item" data-req='${JSON.stringify(cn.requires)}' data-id="${cn.id}" onclick="clickConnect('${cn.id}','${cn.name}')" title="${cn.desc}">
-      <div class="connect-icon" style="background:linear-gradient(135deg,${light},${cn.color});">
-        <i class="fas ${cn.icon}"></i>
-      </div>
+      <div class="connect-icon-v2">${svgIcon}</div>
       <span style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.3;">${cn.name}</span>
       <span class="connect-status status-${cn.status}">${sl}</span>
     </div>`
