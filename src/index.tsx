@@ -445,12 +445,23 @@ app.get('/', (c) => {
   (function(){
     var params=new URLSearchParams(window.location.search);
     if(params.get('logout')==='1'){clearAuth();params.delete('logout');var newUrl=window.location.pathname;if(params.toString())newUrl+='?'+params.toString();window.history.replaceState(null,'',newUrl);return;}
-    if(getToken()&&getUser()){
-      api('/api/user/profile').then(function(r){
-        if(r.success){window.location.href='/dashboard'+window.location.search}
-        else{clearAuth()}
-      }).catch(function(){clearAuth()});
-    }
+    // Strict token validation: must have token, user with id, and API must confirm
+    var tk=getToken();var usr=getUser();
+    if(!tk||!usr||!usr.id){clearAuth();return;}
+    // Verify token is still valid on server
+    fetch('/api/user/profile',{headers:{'Authorization':'Bearer '+tk,'Content-Type':'application/json'}})
+    .then(function(resp){
+      if(!resp.ok){clearAuth();return null;}
+      return resp.json();
+    })
+    .then(function(r){
+      if(r&&r.success&&r.user&&r.user.id){
+        // Update stored user with latest server data
+        localStorage.setItem('ic_user',JSON.stringify(r.user));
+        window.location.href='/dashboard'+window.location.search;
+      } else {clearAuth();}
+    })
+    .catch(function(){clearAuth();});
   })();
   var currentTab='phone',showName=false;
   function switchTab(tab){
@@ -663,9 +674,9 @@ app.get('/dashboard', (c) => {
   var INDUSTRY_COLORS={'餐饮':'#3D8F83','零售':'#6366F1','健身':'#2d7a6e','茶饮':'#8B5CF6','默认':'#5DC4B3'};
 
   var ROLES={
-    initiator:{name:tt('发起机会','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator',tagColor:'#3D8F83',tagBg:'rgba(61,143,131,0.12)'},
-    participant:{name:tt('参与机会','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant',tagColor:'#2d7a6e',tagBg:'rgba(45,122,110,0.12)'},
-    organization:{name:tt('机构身份','Institution'),icon:'fa-building',desc:tt('以机构身份管理机会，一个人可以在多个机构担任角色','Manage deals as institution, hold multiple org roles'),action:tt('添加机构身份','Add Org Role'),target:tt('全部通','All Connects'),gradient:'ic-organization',tagColor:'#6366F1',tagBg:'rgba(99,102,241,0.12)'}
+    initiator:{name:tt('发起机会','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator',tagColor:'#3D8F83',tagBg:'rgba(61,143,131,0.08)',iconBg:'rgba(61,143,131,0.10)',iconColor:'#3D8F83'},
+    participant:{name:tt('参与机会','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant',tagColor:'#32ade6',tagBg:'rgba(50,173,230,0.08)',iconBg:'rgba(50,173,230,0.10)',iconColor:'#32ade6'},
+    organization:{name:tt('机构身份','Institution'),icon:'fa-building',desc:tt('以机构身份管理机会，一个人可以在多个机构担任角色','Manage deals as institution, hold multiple org roles'),action:tt('添加机构身份','Add Org Role'),target:tt('全部通','All Connects'),gradient:'ic-organization',tagColor:'#6366F1',tagBg:'rgba(99,102,241,0.08)',iconBg:'rgba(99,102,241,0.10)',iconColor:'#6366F1'}
   };
 
   var initiatedDeals=[], participatedDeals=[], currentDealTab='init';
@@ -740,21 +751,21 @@ app.get('/dashboard', (c) => {
       var ok=!!id;
       var dealCount=role==='initiator'?initiatedDeals.length:participatedDeals.length;
       return '<div class="identity-card '+(ok?m.gradient:'ic-locked')+'">'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
-          '<div style="width:42px;height:42px;border-radius:12px;background:'+(ok?'rgba(93,196,179,0.08)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
-            '<i class="fas '+m.icon+'" style="font-size:17px;color:'+(ok?'var(--brand-dark)':'var(--text-quaternary)')+';"></i>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">'+
+          '<div style="width:44px;height:44px;border-radius:13px;background:'+(ok?m.iconBg:'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
+            '<i class="fas '+m.icon+'" style="font-size:18px;color:'+(ok?m.iconColor:'var(--text-quaternary)')+';"></i>'+
           '</div>'+
           '<div style="display:flex;align-items:center;gap:6px;">'+
-            (ok?'<span class="micro-badge" style="background:rgba(52,199,89,0.08);color:#16a34a;border:0.5px solid rgba(52,199,89,0.12);"><i class="fas fa-check-circle" style="font-size:8px;"></i>'+tt('已解锁','Active')+'</span>':'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);border:0.5px solid rgba(0,0,0,0.04);"><i class="fas fa-lock" style="font-size:8px;"></i>'+tt('未解锁','Locked')+'</span>')+
-            (ok&&dealCount>0?'<span class="micro-badge" style="background:rgba(93,196,179,0.06);color:var(--brand-dark);border:0.5px solid rgba(93,196,179,0.10);"><i class="fas fa-briefcase" style="font-size:8px;"></i>'+dealCount+'</span>':'')+
+            (ok?'<span class="micro-badge" style="background:rgba(52,199,89,0.08);color:#22c55e;border:0.5px solid rgba(52,199,89,0.12);"><i class="fas fa-check-circle" style="font-size:8px;"></i>'+tt('已解锁','Active')+'</span>':'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);border:0.5px solid rgba(0,0,0,0.04);"><i class="fas fa-lock" style="font-size:8px;"></i>'+tt('未解锁','Locked')+'</span>')+
+            (ok&&dealCount>0?'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-secondary);border:0.5px solid rgba(0,0,0,0.05);"><i class="fas fa-briefcase" style="font-size:8px;"></i>'+dealCount+'</span>':'')+
           '</div>'+
         '</div>'+
-        '<h3 style="font-size:15px;font-weight:700;color:'+(ok?'var(--text-primary)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+m.name+'</h3>'+
-        '<p style="font-size:12px;color:'+(ok?'var(--text-tertiary)':'var(--text-quaternary)')+';margin-bottom:18px;line-height:1.65;">'+m.desc+'</p>'+
+        '<h3 style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:6px;letter-spacing:-0.02em;">'+m.name+'</h3>'+
+        '<p style="font-size:13px;color:var(--text-tertiary);margin-bottom:20px;line-height:1.6;">'+m.desc+'</p>'+
         (ok
           ? '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-              '<span style="font-size:10px;color:var(--text-quaternary);"><i class="fas fa-calendar-check" style="margin-right:3px;font-size:9px;"></i>'+id.unlockedAt+'</span>'+
-              '<button class="btn-card-action" style="background:rgba(93,196,179,0.08);color:var(--brand-dark);" onclick="goConnect(&quot;'+role+'&quot;)">'+m.action+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
+              '<span style="font-size:11px;color:var(--text-quaternary);"><i class="fas fa-calendar-check" style="margin-right:3px;font-size:9px;"></i>'+id.unlockedAt+'</span>'+
+              '<span style="font-size:13px;font-weight:600;color:'+m.iconColor+';cursor:pointer;" onclick="goConnect(&quot;'+role+'&quot;)">'+m.action+' <i class="fas fa-arrow-right" style="margin-left:3px;font-size:10px;"></i></span>'+
             '</div>'
           : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;font-size:11px;"></i>'+tt('解锁此角色','Unlock Role')+'</button>'
         )+
@@ -768,9 +779,9 @@ app.get('/dashboard', (c) => {
     var langQ=LANG==='en'?'?lang=en':'';
     
     html+='<div class="identity-card '+(entityCount>0?orgM.gradient:'ic-locked')+'">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
-        '<div style="width:42px;height:42px;border-radius:12px;background:'+(entityCount>0?'rgba(99,102,241,0.08)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
-          '<i class="fas '+orgM.icon+'" style="font-size:17px;color:'+(entityCount>0?'#6366F1':'var(--text-quaternary)')+';"></i>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">'+
+        '<div style="width:44px;height:44px;border-radius:13px;background:'+(entityCount>0?'rgba(99,102,241,0.10)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
+          '<i class="fas '+orgM.icon+'" style="font-size:18px;color:'+(entityCount>0?'#6366F1':'var(--text-quaternary)')+';"></i>'+
         '</div>'+
         '<div style="display:flex;align-items:center;gap:6px;">'+
           (entityCount>0
@@ -779,8 +790,8 @@ app.get('/dashboard', (c) => {
           )+
         '</div>'+
       '</div>'+
-      '<h3 style="font-size:15px;font-weight:700;color:'+(entityCount>0?'var(--text-primary)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+orgM.name+'</h3>'+
-      '<p style="font-size:12px;color:'+(entityCount>0?'var(--text-tertiary)':'var(--text-quaternary)')+';margin-bottom:12px;line-height:1.65;">'+orgM.desc+'</p>';
+      '<h3 style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:6px;letter-spacing:-0.02em;">'+orgM.name+'</h3>'+
+      '<p style="font-size:13px;color:var(--text-tertiary);margin-bottom:14px;line-height:1.6;">'+orgM.desc+'</p>';
     
     // Show mini entity list inside the card
     if(entityCount>0){
@@ -802,7 +813,7 @@ app.get('/dashboard', (c) => {
     
     // Always show add button — links to entity-verify
     html+='<a href="/entity-verify'+langQ+'" style="text-decoration:none;">'+
-      '<button class="btn-unlock" style="'+(entityCount>0?'border-style:solid;background:rgba(99,102,241,0.04);border-color:rgba(99,102,241,0.12);color:#6366F1;':'')+'">'+
+      '<button class="btn-unlock" style="'+(entityCount>0?'border-style:solid;background:rgba(99,102,241,0.04);border-color:rgba(99,102,241,0.10);color:#6366F1;font-size:13px;':'')+'">'+
         '<i class="fas fa-plus-circle" style="margin-right:6px;font-size:11px;"></i>'+tt('添加机构身份','Add Org Role')+
       '</button>'+
     '</a>'+
