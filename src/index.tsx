@@ -741,20 +741,20 @@ app.get('/dashboard', (c) => {
       var dealCount=role==='initiator'?initiatedDeals.length:participatedDeals.length;
       return '<div class="identity-card '+(ok?m.gradient:'ic-locked')+'">'+
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
-          '<div style="width:44px;height:44px;border-radius:13px;background:'+(ok?'rgba(255,255,255,0.30)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;box-shadow:'+(ok?'0 2px 8px rgba(0,0,0,0.06)':'none')+';backdrop-filter:blur(8px);">'+
-            '<i class="fas '+m.icon+'" style="font-size:18px;color:'+(ok?'rgba(0,0,0,0.55)':'var(--text-quaternary)')+';"></i>'+
+          '<div style="width:42px;height:42px;border-radius:12px;background:'+(ok?'rgba(93,196,179,0.08)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
+            '<i class="fas '+m.icon+'" style="font-size:17px;color:'+(ok?'var(--brand-dark)':'var(--text-quaternary)')+';"></i>'+
           '</div>'+
           '<div style="display:flex;align-items:center;gap:6px;">'+
-            (ok?'<span class="micro-badge" style="background:rgba(255,255,255,0.40);color:rgba(0,0,0,0.50);"><i class="fas fa-check-circle" style="font-size:8px;color:#16a34a;"></i>'+tt('已解锁','Active')+'</span>':'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);"><i class="fas fa-lock" style="font-size:8px;"></i>'+tt('未解锁','Locked')+'</span>')+
-            (ok&&dealCount>0?'<span class="micro-badge" style="background:rgba(255,255,255,0.30);color:rgba(0,0,0,0.45);"><i class="fas fa-briefcase" style="font-size:8px;"></i>'+dealCount+'</span>':'')+
+            (ok?'<span class="micro-badge" style="background:rgba(52,199,89,0.08);color:#16a34a;border:0.5px solid rgba(52,199,89,0.12);"><i class="fas fa-check-circle" style="font-size:8px;"></i>'+tt('已解锁','Active')+'</span>':'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);border:0.5px solid rgba(0,0,0,0.04);"><i class="fas fa-lock" style="font-size:8px;"></i>'+tt('未解锁','Locked')+'</span>')+
+            (ok&&dealCount>0?'<span class="micro-badge" style="background:rgba(93,196,179,0.06);color:var(--brand-dark);border:0.5px solid rgba(93,196,179,0.10);"><i class="fas fa-briefcase" style="font-size:8px;"></i>'+dealCount+'</span>':'')+
           '</div>'+
         '</div>'+
-        '<h3 style="font-size:16px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.72)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+m.name+'</h3>'+
-        '<p style="font-size:11.5px;color:'+(ok?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:18px;line-height:1.65;">'+m.desc+'</p>'+
+        '<h3 style="font-size:15px;font-weight:700;color:'+(ok?'var(--text-primary)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+m.name+'</h3>'+
+        '<p style="font-size:12px;color:'+(ok?'var(--text-tertiary)':'var(--text-quaternary)')+';margin-bottom:18px;line-height:1.65;">'+m.desc+'</p>'+
         (ok
           ? '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-              '<span style="font-size:10px;color:rgba(0,0,0,0.22);"><i class="fas fa-calendar-check" style="margin-right:3px;font-size:9px;"></i>'+id.unlockedAt+'</span>'+
-              '<button class="btn-card-action" onclick="goConnect(&quot;'+role+'&quot;)">'+m.action+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
+              '<span style="font-size:10px;color:var(--text-quaternary);"><i class="fas fa-calendar-check" style="margin-right:3px;font-size:9px;"></i>'+id.unlockedAt+'</span>'+
+              '<button class="btn-card-action" style="background:rgba(93,196,179,0.08);color:var(--brand-dark);" onclick="goConnect(&quot;'+role+'&quot;)">'+m.action+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
             '</div>'
           : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;font-size:11px;"></i>'+tt('解锁此角色','Unlock Role')+'</button>'
         )+
@@ -769,32 +769,32 @@ app.get('/dashboard', (c) => {
     
     html+='<div class="identity-card '+(entityCount>0?orgM.gradient:'ic-locked')+'">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
-        '<div style="width:44px;height:44px;border-radius:13px;background:'+(entityCount>0?'rgba(255,255,255,0.30)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;box-shadow:'+(entityCount>0?'0 2px 8px rgba(0,0,0,0.06)':'none')+';backdrop-filter:blur(8px);">'+
-          '<i class="fas '+orgM.icon+'" style="font-size:18px;color:'+(entityCount>0?'rgba(0,0,0,0.55)':'var(--text-quaternary)')+';"></i>'+
+        '<div style="width:42px;height:42px;border-radius:12px;background:'+(entityCount>0?'rgba(99,102,241,0.08)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
+          '<i class="fas '+orgM.icon+'" style="font-size:17px;color:'+(entityCount>0?'#6366F1':'var(--text-quaternary)')+';"></i>'+
         '</div>'+
         '<div style="display:flex;align-items:center;gap:6px;">'+
           (entityCount>0
-            ?'<span class="micro-badge" style="background:rgba(255,255,255,0.40);color:rgba(0,0,0,0.50);"><i class="fas fa-building" style="font-size:8px;color:#6366F1;"></i>'+entityCount+tt(' 个机构',' orgs')+'</span>'
-            :'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);"><i class="fas fa-building" style="font-size:8px;"></i>'+tt('暂无','None')+'</span>'
+            ?'<span class="micro-badge" style="background:rgba(99,102,241,0.06);color:#6366F1;border:0.5px solid rgba(99,102,241,0.10);"><i class="fas fa-building" style="font-size:8px;"></i>'+entityCount+tt(' 个机构',' orgs')+'</span>'
+            :'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);border:0.5px solid rgba(0,0,0,0.04);"><i class="fas fa-building" style="font-size:8px;"></i>'+tt('暂无','None')+'</span>'
           )+
         '</div>'+
       '</div>'+
-      '<h3 style="font-size:16px;font-weight:700;color:'+(entityCount>0?'rgba(0,0,0,0.72)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+orgM.name+'</h3>'+
-      '<p style="font-size:11.5px;color:'+(entityCount>0?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:12px;line-height:1.65;">'+orgM.desc+'</p>';
+      '<h3 style="font-size:15px;font-weight:700;color:'+(entityCount>0?'var(--text-primary)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+orgM.name+'</h3>'+
+      '<p style="font-size:12px;color:'+(entityCount>0?'var(--text-tertiary)':'var(--text-quaternary)')+';margin-bottom:12px;line-height:1.65;">'+orgM.desc+'</p>';
     
     // Show mini entity list inside the card
     if(entityCount>0){
       html+='<div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px;">';
       entities.forEach(function(e){
-        html+='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:'+(entityCount>0?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.02)')+';backdrop-filter:blur(6px);">'+
-          '<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:'+(entityCount>0?'rgba(99,102,241,0.03)':'rgba(0,0,0,0.02)')+';">'+
+          '<div style="width:28px;height:28px;border-radius:8px;background:rgba(99,102,241,0.07);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
             '<i class="fas fa-store" style="font-size:10px;color:#6366F1;"></i>'+
           '</div>'+
           '<div style="flex:1;min-width:0;">'+
-            '<div style="font-size:12px;font-weight:600;color:'+(entityCount>0?'rgba(0,0,0,0.60)':'var(--text-secondary)')+';line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.entityName+'</div>'+
-            '<div style="font-size:10px;color:'+(entityCount>0?'rgba(0,0,0,0.28)':'var(--text-quaternary)')+';"><i class="fas fa-user-tag" style="margin-right:2px;font-size:8px;"></i>'+e.role+'</div>'+
+            '<div style="font-size:12px;font-weight:600;color:'+(entityCount>0?'var(--text-primary)':'var(--text-secondary)')+';line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.entityName+'</div>'+
+            '<div style="font-size:10px;color:'+(entityCount>0?'var(--text-tertiary)':'var(--text-quaternary)')+';"><i class="fas fa-user-tag" style="margin-right:2px;font-size:8px;"></i>'+e.role+'</div>'+
           '</div>'+
-          '<span style="font-size:9px;color:'+(entityCount>0?'rgba(0,0,0,0.20)':'var(--text-quaternary)')+';white-space:nowrap;">'+e.verifiedAt+'</span>'+
+          '<span style="font-size:9px;color:'+(entityCount>0?'var(--text-quaternary)':'var(--text-quaternary)')+';white-space:nowrap;">'+e.verifiedAt+'</span>'+
         '</div>';
       });
       html+='</div>';
@@ -802,7 +802,7 @@ app.get('/dashboard', (c) => {
     
     // Always show add button — links to entity-verify
     html+='<a href="/entity-verify'+langQ+'" style="text-decoration:none;">'+
-      '<button class="btn-unlock" style="'+(entityCount>0?'border-style:solid;background:rgba(255,255,255,0.30);border-color:rgba(99,102,241,0.20);color:rgba(0,0,0,0.50);':'')+'">'+
+      '<button class="btn-unlock" style="'+(entityCount>0?'border-style:solid;background:rgba(99,102,241,0.04);border-color:rgba(99,102,241,0.12);color:#6366F1;':'')+'">'+
         '<i class="fas fa-plus-circle" style="margin-right:6px;font-size:11px;"></i>'+tt('添加机构身份','Add Org Role')+
       '</button>'+
     '</a>'+
@@ -847,8 +847,8 @@ app.get('/dashboard', (c) => {
 
       return '<div class="deal-card-v2">'+
         '<div class="deal-card-header">'+
-          '<div class="deal-card-icon" style="background:linear-gradient(135deg,'+(isInit?'#e0f2ee,#5DC4B3':'#d5ede8,#49A89A')+');">'+
-            '<i class="fas '+(isInit?'fa-rocket':'fa-search-dollar')+'" style="font-size:16px;color:'+(isInit?'#2d6b5f':'#1f5e54')+';"></i>'+
+          '<div class="deal-card-icon" style="background:linear-gradient(135deg,'+(isInit?'rgba(93,196,179,0.10),rgba(93,196,179,0.18)':'rgba(45,122,110,0.10),rgba(45,122,110,0.18)')+');">'+
+            '<i class="fas '+(isInit?'fa-rocket':'fa-search-dollar')+'" style="font-size:16px;color:'+(isInit?'var(--brand-dark)':'#2d7a6e')+';"></i>'+
           '</div>'+
           '<div class="deal-card-title-wrap">'+
             '<div class="deal-card-title">'+d.title+'</div>'+
