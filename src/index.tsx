@@ -288,9 +288,22 @@ app.get('/api/deals/participated', (c) => {
 // ═══════════════════════════════════════════
 // Shared Components
 // ═══════════════════════════════════════════
-const LOGO = `<svg width="28" height="28" viewBox="0 0 80 80"><defs><linearGradient id="gt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gt)"/><circle cx="36" cy="44" r="22" fill="url(#gb)" opacity="0.85"/></svg>`
+const LOGO = `<svg width="32" height="32" viewBox="0 0 80 80"><defs><linearGradient id="gt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gt)"/><circle cx="36" cy="44" r="22" fill="url(#gb)" opacity="0.85"/></svg>`
 
 const LOGO_LG = `<svg width="44" height="44" viewBox="0 0 80 80"><defs><linearGradient id="gtl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EC4B6"/><stop offset="100%" stop-color="#3DD8CA"/></linearGradient><linearGradient id="gbl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#28A696"/><stop offset="100%" stop-color="#2EC4B6"/></linearGradient></defs><circle cx="44" cy="28" r="22" fill="url(#gtl)"/><circle cx="36" cy="44" r="22" fill="url(#gbl)" opacity="0.85"/></svg>`
+
+// Shared nav brand: Logo + stacked Chinese title + English subtitle
+function navBrand(href: string, mode: 'dark' | 'light', zh: boolean) {
+  const titleColor = mode === 'dark' ? 'rgba(255,255,255,0.95)' : 'var(--text-primary)'
+  const subColor = mode === 'dark' ? 'rgba(255,255,255,0.40)' : 'var(--text-quaternary)'
+  return `<a href="${href}" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+    ${LOGO}
+    <div style="display:flex;flex-direction:column;gap:1px;line-height:1.15;">
+      <span style="font-weight:800;font-size:17px;color:${titleColor};letter-spacing:0.02em;font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;">${zh ? '身份通' : 'Identity'}</span>
+      <span class="font-brand" style="font-weight:600;font-size:10px;color:${subColor};letter-spacing:2.5px;text-transform:uppercase;">IDENTITY CONNECT</span>
+    </div>
+  </a>`
+}
 
 function shell(title: string, body: string, lang: string): string {
   return `<!DOCTYPE html>
@@ -349,10 +362,7 @@ app.get('/', (c) => {
 
     <nav class="navbar-dark" id="navbar">
       <div class="nav-inner">
-        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          ${LOGO}
-          <span class="font-brand" style="font-weight:700;font-size:13px;color:rgba(255,255,255,0.80);letter-spacing:1px;">MICRO CONNECT</span>
-        </a>
+        ${navBrand('/', 'dark', zh)}
         <div style="display:flex;align-items:center;gap:6px;">
           <a href="?lang=${t.nav.langToggle}" class="btn-ghost-dark">${t.nav.langLabel}</a>
           <a href="https://microconnect.com" class="btn-ghost-dark"><i class="fas fa-external-link-alt" style="font-size:10px;margin-right:4px;"></i>${t.nav.backToMain}</a>
@@ -545,11 +555,7 @@ app.get('/dashboard', (c) => {
   const body = `
   <nav class="navbar-dark" id="navbar" style="position:sticky;top:0;z-index:100;">
     <div class="nav-inner">
-      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        ${LOGO}
-        <span class="font-brand" style="font-weight:700;font-size:13px;color:rgba(255,255,255,0.80);letter-spacing:0.8px;">MICRO CONNECT</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:rgba(93,196,179,0.15);font-size:10px;font-weight:600;color:rgba(93,196,179,0.85);"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
-      </a>
+      ${navBrand('/dashboard' + (lang === 'en' ? '?lang=en' : ''), 'dark', zh)}
       <div style="display:flex;align-items:center;gap:8px;">
         <a href="?lang=${t.nav.langToggle}" class="btn-ghost-dark" style="padding:6px 12px;font-size:11px;">${t.nav.langLabel}</a>
         <button onclick="doLogout()" class="btn-ghost-dark" style="padding:6px 12px;font-size:11px;border-color:rgba(255,55,95,0.20);color:rgba(255,100,130,0.7);">
@@ -983,11 +989,10 @@ app.get('/entity-verify', (c) => {
   const body = `
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
-      <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        ${LOGO}
-        <span class="font-brand" style="font-weight:700;font-size:13px;color:var(--text-primary);letter-spacing:0.8px;">MICRO CONNECT</span>
-        <span class="badge badge-brand" style="font-size:10px;"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
-      </a>
+      <div style="display:flex;align-items:center;gap:12px;">
+        ${navBrand('/dashboard' + (lang === 'en' ? '?lang=en' : ''), 'light', zh)}
+        <span class="badge badge-brand" style="font-size:10px;margin-left:4px;"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
+      </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:7px 12px;font-size:12px;">${t.nav.langLabel}</a>
         <span id="nav-user" style="font-size:13px;color:var(--text-tertiary);font-weight:500;"></span>
