@@ -1,11 +1,23 @@
 /* ═══════════════════════════════════════════════════════
-   Identity Connect 身份通 — Design System V2
-   MicroConnect Product Bible V3.0 · Apple-Grade Visual
-   品牌色 #5DC4B3 · 身份通蓝 #3B82F6
+   Identity Connect 身份通 — Premium Design System V3
+   Aligned with Contract Connect V18 (MC-Revolution v33)
+   2026-03 · Apple-Inspired Precision + Micro-Interactions
+   Powered by Micro Connect Group
    ═══════════════════════════════════════════════════════ */
 
+/* ========== 1. Design Token System ========== */
 :root {
-  /* ── Brand Palette ── */
+  /* Contract Connect Brand - Teal */
+  --color-primary: #5DC4B3;
+  --color-primary-light: #7DD4C7;
+  --color-primary-dark: #3D8F83;
+  --color-accent: #49A89A;
+  --color-accent-cyan: #32ade6;
+  --color-accent-emerald: #34c759;
+  --color-accent-amber: #ff9f0a;
+  --color-accent-rose: #ff375f;
+
+  /* Aliases */
   --brand: #5DC4B3;
   --brand-light: #7DD4C7;
   --brand-dark: #3D8F83;
@@ -14,64 +26,95 @@
   --brand-100: rgba(93,196,179,0.10);
   --brand-200: rgba(93,196,179,0.20);
 
-  /* ── Logo ── */
+  /* Logo */
   --logo-bright: #2EC4B6;
   --logo-bright2: #3DD8CA;
   --logo-deep: #28A696;
 
-  /* ── Identity Connect accent ── */
+  /* Identity Connect accent */
   --identity-light: #DBEAFE;
   --identity: #3B82F6;
 
-  /* ── Semantic ── */
+  /* Semantic */
   --success: #34c759;
   --warning: #ff9f0a;
   --error: #ff375f;
   --info: #32ade6;
 
-  /* ── Text — 最深 #1d1d1f, 禁纯黑 ── */
+  /* Gradients — v33 aligned */
+  --gradient-primary: linear-gradient(135deg, #5DC4B3 0%, #49A89A 100%);
+  --gradient-cyber: linear-gradient(135deg, #0a2e2a 0%, #0f3d36 50%, #164e47 100%);
+  --gradient-neon: linear-gradient(135deg, #32ade6 0%, #5DC4B3 40%, #49A89A 70%, #3D8F83 100%);
+  --gradient-aurora: linear-gradient(135deg, #0a2e2a 0%, #0f3d36 25%, #0c3530 50%, #164e47 75%, #1a6b5f 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+  --gradient-success: linear-gradient(135deg, #30b750 0%, #34c759 100%);
+  --gradient-warning: linear-gradient(135deg, #f0840a 0%, #ff9f0a 100%);
+  --gradient-danger: linear-gradient(135deg, #d62040 0%, #ff375f 100%);
+  --gradient-info: linear-gradient(135deg, #0a84ff 0%, #32ade6 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #f8f9fe 100%);
+  --gradient-mesh: radial-gradient(at 20% 20%, rgba(93, 196, 179, 0.06) 0%, transparent 50%),
+                   radial-gradient(at 80% 80%, rgba(73, 168, 154, 0.04) 0%, transparent 50%),
+                   radial-gradient(at 50% 50%, rgba(50, 173, 230, 0.03) 0%, transparent 50%);
+  --gradient-hero: linear-gradient(160deg, #0a1a17 0%, #0d2924 25%, #0f3330 50%, #0b2622 75%, #081c19 100%);
+
+  /* Glass effects — Apple frosted */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-solid: rgba(255, 255, 255, 0.92);
+  --glass-bg-dark: rgba(15, 23, 42, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-border-light: rgba(93, 196, 179, 0.15);
+  --glass-blur: blur(24px) saturate(180%);
+
+  /* Text — darkest #1d1d1f, no pure black */
   --text-primary: #1d1d1f;
   --text-secondary: #6e6e73;
   --text-tertiary: #86868b;
   --text-quaternary: #aeaeb2;
   --text-placeholder: #c7c7cc;
 
-  /* ── Surface ── */
+  /* Surface */
   --bg-page: #f5f5f7;
   --bg-card: rgba(255,255,255,0.92);
   --bg-elevated: #ffffff;
 
-  /* ── Border ── */
+  /* Border */
   --border-light: rgba(0,0,0,0.04);
   --border-medium: rgba(0,0,0,0.08);
   --border-input: rgba(0,0,0,0.10);
 
-  /* ── Shadows — Apple multi-layer ── */
+  /* Neon shadows — v33 signature glow */
+  --shadow-neon-primary: 0 0 24px rgba(93, 196, 179, 0.2), 0 0 48px rgba(93, 196, 179, 0.06);
+  --shadow-neon-cyan: 0 0 24px rgba(50, 173, 230, 0.2), 0 0 48px rgba(50, 173, 230, 0.06);
+  --shadow-neon-emerald: 0 0 24px rgba(52, 199, 89, 0.2), 0 0 48px rgba(52, 199, 89, 0.06);
+
+  /* Layered shadow system — Apple precision */
   --shadow-xs: 0 0.5px 1px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.04);
   --shadow-md: 0 2px 4px rgba(0,0,0,0.02), 0 4px 8px rgba(0,0,0,0.03), 0 12px 32px rgba(0,0,0,0.05);
   --shadow-lg: 0 4px 8px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.04), 0 24px 56px rgba(0,0,0,0.07);
   --shadow-xl: 0 8px 24px rgba(0,0,0,0.05), 0 32px 80px rgba(0,0,0,0.08);
+  --shadow-2xl: 0 16px 32px rgba(0, 0, 0, 0.08), 0 32px 72px rgba(0, 0, 0, 0.14);
+  --shadow-inner: inset 0 1px 3px rgba(0, 0, 0, 0.04);
   --shadow-card: 0 0.5px 1px rgba(0,0,0,0.01), 0 2px 6px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.04);
   --shadow-card-hover: 0 4px 8px rgba(0,0,0,0.03), 0 12px 40px rgba(93,196,179,0.10);
 
-  /* ── Easings ── */
+  /* Radius */
+  --r-xs: 4px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-2xl: 24px; --r-3xl: 28px;
+  --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-2xl: 24px; --radius-3xl: 32px; --radius-full: 9999px;
+
+  /* Animation — Apple smooth */
   --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
-
-  /* ── Radius ── */
-  --r-xs: 4px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-2xl: 24px; --r-3xl: 28px;
-
-  /* ── Gradients ── */
-  --gradient-primary: linear-gradient(135deg, #5DC4B3 0%, #3D8F83 100%);
-  --gradient-hero: linear-gradient(160deg, #0a1a17 0%, #0d2924 25%, #0f3330 50%, #0b2622 75%, #081c19 100%);
+  --duration-fast: 180ms;
+  --duration-normal: 280ms;
+  --duration-slow: 420ms;
 }
 
+/* ========== 2. Global Base ========== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
 
 body {
@@ -83,12 +126,12 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   line-height: 1.5;
+  letter-spacing: -0.01em;
+  min-height: 100vh;
 }
 .font-brand { font-family: 'Montserrat', 'Inter', 'Futura', 'Helvetica Neue', sans-serif; }
 
-/* ════════════════════════════════════════════
-   ANIMATIONS — 丝滑、自然、克制
-   ════════════════════════════════════════════ */
+/* ========== 3. Animations — Silky, Natural ========== */
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(24px); }
@@ -103,6 +146,7 @@ body {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes float-gentle {
   0%, 100% { transform: translate(0, 0) scale(1); }
   25% { transform: translate(10px, -15px) scale(1.02); }
@@ -125,8 +169,24 @@ body {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 0.8; }
 }
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+@keyframes gentleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes rotateGlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes particleFloat {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-16px); opacity: 0.85; }
+}
 
-/* ── Scroll Reveal ── */
+/* Scroll Reveal — v33 aligned */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -139,66 +199,62 @@ body {
 .stagger-4 { transition-delay: 0.24s; }
 .stagger-5 { transition-delay: 0.30s; }
 
-/* ════════════════════════════════════════════
-   HERO — 登录页全屏沉浸暗色
-   ════════════════════════════════════════════ */
+/* ========== 4. Hero — Immersive Dark Login ========== */
 .hero-dark {
   min-height: 100vh; min-height: 100dvh;
-  background: var(--gradient-hero);
+  background: var(--gradient-aurora);
   position: relative; overflow: hidden;
   display: flex; flex-direction: column;
 }
-/* 多层次光氛围 */
+/* Multi-layered light atmosphere — v33 aurora */
 .hero-dark::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 60% at 25% 15%, rgba(93,196,179,0.09) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 50% at 75% 80%, rgba(46,196,182,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 45%, rgba(61,143,131,0.04) 0%, transparent 45%);
+    radial-gradient(ellipse 80% 60% at 25% 15%, rgba(93,196,179,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 75% 80%, rgba(46,196,182,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 45%, rgba(61,143,131,0.06) 0%, transparent 45%);
 }
-/* 精致点阵纹理 */
+/* Refined dot-matrix texture */
 .hero-dark::after {
   content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.25;
   background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
-/* 光晕球 — 更克制、更大、更模糊 */
+/* Light Orbs — Restrained, large, soft blur — v33 particles style */
 .orb {
   position: absolute; border-radius: 50%; pointer-events: none;
   filter: blur(120px);
 }
 .orb-1 {
   width: 600px; height: 600px; top: -20%; left: -12%;
-  background: radial-gradient(circle, rgba(93,196,179,0.15) 0%, rgba(93,196,179,0.02) 70%, transparent 100%);
+  background: radial-gradient(circle, rgba(93,196,179,0.18) 0%, rgba(93,196,179,0.03) 70%, transparent 100%);
   animation: float-gentle 20s ease-in-out infinite;
 }
 .orb-2 {
   width: 500px; height: 500px; bottom: -15%; right: -8%;
-  background: radial-gradient(circle, rgba(46,196,182,0.10) 0%, rgba(46,196,182,0.01) 70%, transparent 100%);
+  background: radial-gradient(circle, rgba(46,196,182,0.12) 0%, rgba(46,196,182,0.02) 70%, transparent 100%);
   animation: float-gentle 25s ease-in-out infinite 3s;
 }
 .orb-3 {
   width: 350px; height: 350px; top: 35%; left: 55%;
-  background: radial-gradient(circle, rgba(93,196,179,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(93,196,179,0.08) 0%, transparent 70%);
   animation: float-gentle 30s ease-in-out infinite 6s;
 }
 
-/* ════════════════════════════════════════════
-   NAVBAR — 56px, 毛玻璃, Apple级
-   ════════════════════════════════════════════ */
+/* ========== 5. Navbar — 56px, Frosted Glass, Apple-grade ========== */
 .navbar {
   position: sticky; top: 0; z-index: 100;
   height: 56px;
-  background: rgba(245,245,247,0.72);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 0.5px solid rgba(0,0,0,0.05);
   transition: all 350ms var(--ease-apple);
 }
 .navbar.scrolled {
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 0.5px 0 rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 0.5px 0 rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
   border-bottom-color: transparent;
 }
 
@@ -217,9 +273,17 @@ body {
   height: 100%; display: flex; align-items: center; justify-content: space-between;
 }
 
-/* ════════════════════════════════════════════
-   GLASS CARD — 登录卡片 毛玻璃
-   ════════════════════════════════════════════ */
+.nav-brand {
+  font-weight: 800;
+  font-size: 1.2rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.025em;
+}
+
+/* ========== 6. Glass Card — Login Card Frosted ========== */
 .card-glass {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
@@ -232,38 +296,47 @@ body {
     0 4px 24px rgba(0,0,0,0.15),
     0 16px 56px rgba(0,0,0,0.10);
 }
-/* 顶部高光线 */
 .card-glass::before {
   content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
 }
-/* 底部微光 */
 .card-glass::after {
   content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
-  background: linear-gradient(to top, rgba(93,196,179,0.02), transparent);
+  background: linear-gradient(to top, rgba(93,196,179,0.03), transparent);
   pointer-events: none;
 }
 
-/* ════════════════════════════════════════════
-   CARD — 标准卡片 Apple风格
-   ════════════════════════════════════════════ */
+/* ========== 7. Card — Standard Apple-style with v33 hover glow ========== */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--r-2xl);
   box-shadow: var(--shadow-card);
-  transition: transform 400ms var(--ease-spring), box-shadow 400ms var(--ease-spring), border-color 300ms ease;
+  transition: all var(--duration-normal) var(--ease-apple);
   position: relative; overflow: hidden;
 }
+/* Top gradient highlight on hover — v33 signature */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-neon);
+  opacity: 0;
+  transition: opacity var(--duration-normal);
+}
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(93,196,179,0.12);
+  border-color: rgba(93, 196, 179, 0.12);
+}
+.card:hover::before {
+  opacity: 1;
 }
 
-/* ════════════════════════════════════════════
-   IDENTITY CARDS — 三色渐变 更细腻
-   ════════════════════════════════════════════ */
+/* ========== 8. Identity Cards — Rich Gradients ========== */
 .identity-card {
   border-radius: var(--r-2xl); padding: 28px 24px;
   position: relative; overflow: hidden;
@@ -272,13 +345,12 @@ body {
 }
 .identity-card:hover { transform: translateY(-3px); }
 
-/* 已解锁 — 彩色渐变 */
 .ic-initiator {
   background: linear-gradient(145deg, #fefce8 0%, #fef3c7 30%, #fde68a 70%, #fcd34d 100%);
   border: 1px solid rgba(252,211,77,0.35);
   box-shadow: 0 2px 8px rgba(245,158,11,0.08), 0 8px 32px rgba(245,158,11,0.06);
 }
-.ic-initiator:hover { box-shadow: 0 4px 16px rgba(245,158,11,0.12), 0 16px 48px rgba(245,158,11,0.10); }
+.ic-initiator:hover { box-shadow: 0 4px 16px rgba(245,158,11,0.15), 0 16px 48px rgba(245,158,11,0.10); }
 .ic-initiator::before {
   content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
   background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
@@ -290,7 +362,7 @@ body {
   border: 1px solid rgba(110,231,183,0.35);
   box-shadow: 0 2px 8px rgba(16,185,129,0.08), 0 8px 32px rgba(16,185,129,0.06);
 }
-.ic-participant:hover { box-shadow: 0 4px 16px rgba(16,185,129,0.12), 0 16px 48px rgba(16,185,129,0.10); }
+.ic-participant:hover { box-shadow: 0 4px 16px rgba(16,185,129,0.15), 0 16px 48px rgba(16,185,129,0.10); }
 .ic-participant::before {
   content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
   background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
@@ -302,14 +374,13 @@ body {
   border: 1px solid rgba(165,180,252,0.35);
   box-shadow: 0 2px 8px rgba(99,102,241,0.08), 0 8px 32px rgba(99,102,241,0.06);
 }
-.ic-organization:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.12), 0 16px 48px rgba(99,102,241,0.10); }
+.ic-organization:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.15), 0 16px 48px rgba(99,102,241,0.10); }
 .ic-organization::before {
   content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
   background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
   pointer-events: none;
 }
 
-/* 未解锁 — 灰色优雅 */
 .ic-locked {
   background: linear-gradient(145deg, #fafafa, #f5f5f5 50%, #efefef);
   border: 1px solid rgba(0,0,0,0.04);
@@ -317,9 +388,7 @@ body {
 }
 .ic-locked:hover { box-shadow: var(--shadow-sm); }
 
-/* ════════════════════════════════════════════
-   INPUTS
-   ════════════════════════════════════════════ */
+/* ========== 9. Inputs — v33 precision ========== */
 .input-field {
   border: 1.5px solid var(--border-input); border-radius: var(--r-md);
   padding: 13px 16px; font-size: 15px; width: 100%; outline: none;
@@ -330,9 +399,16 @@ body {
 .input-field::placeholder { color: var(--text-placeholder); }
 .input-field:hover { border-color: rgba(93,196,179,0.3); }
 .input-field:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3.5px rgba(93,196,179,0.10);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3.5px rgba(93,196,179,0.12), 0 1px 2px rgba(0,0,0,0.04);
   background: #fff;
+  animation: inputFocusPulse 0.5s var(--ease-apple);
+}
+
+@keyframes inputFocusPulse {
+  0% { box-shadow: 0 0 0 0 rgba(93,196,179,0.2); }
+  50% { box-shadow: 0 0 0 5px rgba(93,196,179,0.08), var(--shadow-sm); }
+  100% { box-shadow: 0 0 0 3.5px rgba(93,196,179,0.12), var(--shadow-sm); }
 }
 
 .input-glass {
@@ -346,15 +422,11 @@ body {
 .input-glass:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); }
 .input-glass:focus {
   border-color: rgba(93,196,179,0.5);
-  box-shadow: 0 0 0 3.5px rgba(93,196,179,0.10);
+  box-shadow: 0 0 0 3.5px rgba(93,196,179,0.12);
   background: rgba(255,255,255,0.08);
 }
 
-/* ════════════════════════════════════════════
-   BUTTONS — Apple 标准
-   ════════════════════════════════════════════ */
-
-/* 主CTA — 品牌绿色 */
+/* ========== 10. Buttons — v33 Apple Standard with inset glow ========== */
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 14px 28px;
@@ -363,23 +435,29 @@ body {
   font-size: 15px; font-weight: 600; cursor: pointer;
   font-family: inherit; line-height: 1;
   transition: all 350ms var(--ease-spring);
-  box-shadow: 0 1px 3px rgba(93,196,179,0.3), 0 4px 16px rgba(93,196,179,0.15);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(93, 196, 179, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   position: relative; overflow: hidden;
 }
 .btn-primary::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.12) 0%, transparent 50%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  opacity: 0; transition: opacity var(--duration-normal);
   pointer-events: none;
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(93,196,179,0.35), 0 8px 28px rgba(93,196,179,0.20);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(93, 196, 179, 0.35);
   filter: brightness(1.06);
 }
-.btn-primary:active { transform: translateY(0.5px); filter: brightness(0.96); }
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary:active { transform: translateY(0) scale(0.98); filter: brightness(0.96); }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
 
-/* Ghost 按钮 */
 .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 9px 18px; background: transparent;
@@ -389,7 +467,9 @@ body {
   transition: all 250ms var(--ease-smooth);
 }
 .btn-ghost:hover {
-  background: var(--brand-50); border-color: rgba(93,196,179,0.3); color: var(--brand-dark);
+  background: rgba(93, 196, 179, 0.04);
+  border-color: rgba(93,196,179,0.4); color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(93, 196, 179, 0.1);
 }
 
 .btn-ghost-dark {
@@ -402,7 +482,6 @@ body {
 }
 .btn-ghost-dark:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.85); }
 
-/* 卡片内动作按钮 */
 .btn-card-action {
   padding: 8px 16px; border-radius: var(--r-sm); border: none;
   background: rgba(255,255,255,0.35);
@@ -411,9 +490,8 @@ body {
   transition: all 250ms var(--ease-smooth);
   backdrop-filter: blur(8px);
 }
-.btn-card-action:hover { background: rgba(255,255,255,0.55); color: rgba(0,0,0,0.8); }
+.btn-card-action:hover { background: rgba(255,255,255,0.55); color: rgba(0,0,0,0.8); transform: translateY(-1px); }
 
-/* 解锁按钮 */
 .btn-unlock {
   width: 100%; padding: 11px; border-radius: var(--r-md);
   border: 1.5px dashed rgba(0,0,0,0.08);
@@ -426,9 +504,10 @@ body {
   background: var(--brand-50);
   border-color: rgba(93,196,179,0.35);
   color: var(--brand-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
-/* 发送验证码 */
 .btn-code {
   padding: 13px 16px; background: rgba(93,196,179,0.10); color: var(--brand-light);
   border: 1px solid rgba(93,196,179,0.20); border-radius: var(--r-md);
@@ -438,9 +517,13 @@ body {
 .btn-code:hover:not(:disabled) { background: rgba(93,196,179,0.18); border-color: rgba(93,196,179,0.35); }
 .btn-code:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ════════════════════════════════════════════
-   TABS — 登录切换 优雅
-   ════════════════════════════════════════════ */
+/* Global button press feedback — v33 micro-interaction */
+button:active {
+  transform: scale(0.97);
+  transition-duration: 0.08s;
+}
+
+/* ========== 11. Tabs — Login Switch ========== */
 .tab-btn {
   flex: 1; padding: 14px 0; font-size: 14px; font-weight: 500;
   color: rgba(255,255,255,0.30); border: none; background: transparent;
@@ -451,21 +534,23 @@ body {
 .tab-btn:hover { color: rgba(255,255,255,0.55); }
 .tab-btn.active {
   color: rgba(255,255,255,0.95);
-  border-bottom-color: var(--brand);
+  border-bottom-color: var(--color-primary);
   font-weight: 600;
 }
 
-/* ════════════════════════════════════════════
-   TOAST — 通知
-   ════════════════════════════════════════════ */
+/* ========== 12. Toast — v33 aligned precision ========== */
 .toast {
   position: fixed; top: 72px; left: 50%;
   transform: translateX(-50%) translateY(-16px);
-  padding: 13px 24px; border-radius: var(--r-md);
+  padding: 14px 24px; border-radius: var(--r-md);
   font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0;
   transition: all 400ms var(--ease-spring);
-  pointer-events: none; backdrop-filter: blur(20px); white-space: nowrap;
+  pointer-events: none;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  white-space: nowrap;
   max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 .toast.success {
@@ -484,22 +569,28 @@ body {
   box-shadow: 0 4px 20px rgba(93,196,179,0.10), 0 1px 3px rgba(0,0,0,0.04);
 }
 
-/* ════════════════════════════════════════════
-   9 CONNECTS GRID — 更精致
-   ════════════════════════════════════════════ */
+/* ========== 13. Nine Connects Grid — v33 precision ========== */
 .connect-item {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: 18px 10px; border-radius: var(--r-lg);
   cursor: pointer; text-align: center;
   transition: all 350ms var(--ease-spring);
+  position: relative; overflow: hidden;
 }
 .connect-item:hover:not(.disabled) {
-  background: var(--brand-50);
+  background: rgba(93, 196, 179, 0.06);
   transform: translateY(-3px);
 }
 .connect-item.disabled {
   opacity: 0.20; cursor: not-allowed; filter: grayscale(0.8);
 }
+/* Radial glow on hover — v33 signature */
+.connect-item::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(93,196,179,0.08) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.35s; pointer-events: none;
+}
+.connect-item:hover:not(.disabled)::after { opacity: 1; }
 
 .connect-icon {
   width: 52px; height: 52px; border-radius: var(--r-lg);
@@ -509,7 +600,7 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
 }
 .connect-item:hover:not(.disabled) .connect-icon {
-  transform: scale(1.10) rotate(-2deg);
+  transform: scale(1.12) rotate(-3deg);
   box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.06);
 }
 
@@ -521,19 +612,26 @@ body {
 .status-beta { background: rgba(93,196,179,0.10); color: var(--brand-dark); }
 .status-coming { background: rgba(0,0,0,0.03); color: var(--text-quaternary); }
 
-/* ════════════════════════════════════════════
-   FOOTER — Aurora 暗色底部
-   ════════════════════════════════════════════ */
+/* ========== 14. Footer — Aurora Dark ========== */
 .footer-aurora {
-  background: linear-gradient(180deg, #0a1a17 0%, #0d2420 40%, #081c19 100%);
+  background: var(--gradient-aurora);
   position: relative; overflow: hidden;
 }
 .footer-aurora::before {
   content: ''; position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(93,196,179,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(46,196,182,0.04) 0%, transparent 50%);
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(93,196,179,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(46,196,182,0.05) 0%, transparent 50%);
   animation: aurora-breathe 12s ease-in-out infinite;
+}
+/* Particle overlay — v33 */
+.footer-aurora::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(93, 196, 179, 0.3) 0, transparent 2px),
+    radial-gradient(circle at 60% 70%, rgba(73, 168, 154, 0.2) 0, transparent 2px),
+    radial-gradient(circle at 80% 20%, rgba(50, 173, 230, 0.15) 0, transparent 2px);
+  animation: particleFloat 30s linear infinite;
 }
 .footer-link {
   color: rgba(255,255,255,0.30); font-size: 12px; text-decoration: none;
@@ -541,9 +639,30 @@ body {
 }
 .footer-link:hover { color: rgba(255,255,255,0.60); }
 
-/* ════════════════════════════════════════════
-   MISC Components
-   ════════════════════════════════════════════ */
+/* ========== 15. Badge System — v33 aligned ========== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--radius-full);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  transition: all 0.25s var(--ease-apple);
+}
+.badge:hover {
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.badge-brand {
+  background: linear-gradient(135deg, rgba(93, 196, 179, 0.15) 0%, rgba(73, 168, 154, 0.15) 100%);
+  color: var(--color-primary);
+}
+.badge-live {
+  background: rgba(52,199,89,0.1); color: #22c55e;
+}
+.badge-glass {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.5);
+}
+
+/* ========== 16. Misc Components — v33 enhanced ========== */
 .spinner {
   width: 18px; height: 18px;
   border: 2px solid rgba(255,255,255,0.25); border-top-color: #fff;
@@ -552,9 +671,14 @@ body {
 
 .avatar-ring {
   width: 52px; height: 52px; border-radius: 16px;
-  background: linear-gradient(135deg, #b2e8de, var(--brand));
+  background: var(--gradient-primary);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 12px rgba(93,196,179,0.20);
+  box-shadow: var(--shadow-neon-primary);
+  transition: all 0.35s var(--ease-bounce);
+}
+.avatar-ring:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgba(93,196,179,0.2), 0 4px 16px rgba(93,196,179,0.3);
 }
 
 .upload-zone {
@@ -565,6 +689,8 @@ body {
 .upload-zone:hover {
   border-color: rgba(93,196,179,0.35);
   background: var(--brand-100);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .section-heading {
@@ -574,46 +700,100 @@ body {
   width: 30px; height: 30px; border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  transition: all 0.3s var(--ease-bounce);
 }
+.section-icon:hover { transform: scale(1.1) rotate(-4deg); }
 
-/* ── 分割线 ── */
 .divider {
   height: 1px; margin: 32px 0;
   background: linear-gradient(90deg, transparent, var(--border-light), transparent);
 }
 
-/* ── 标签/Badge ── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 10px; border-radius: 20px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.1px;
-}
-.badge-brand {
-  background: var(--brand-100); color: var(--brand-dark);
-}
-.badge-live {
-  background: rgba(52,199,89,0.1); color: #22c55e;
-}
-.badge-glass {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.5);
+/* ========== 17. Stat Card Enhancements — v33 micro-interactions ========== */
+.stat-card-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  transition: transform 0.35s var(--ease-bounce);
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 5px; }
+/* ========== 18. Deal Tab — Active state ========== */
+.deal-tab.active {
+  color: var(--text-primary) !important;
+  font-weight: 700;
+}
+
+/* ========== 19. Text Utilities — v33 ========== */
+.text-neon {
+  background: var(--gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========== 20. Scrollbar — v33 thin precision ========== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.15); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.10); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.18); }
+* { scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, 0.10) transparent; }
 
-/* ── Selection ── */
+/* ========== 21. Selection ========== */
 ::selection {
   background: rgba(93,196,179,0.20);
   color: var(--text-primary);
 }
 
-/* ════════════════════════════════════════════
-   RESPONSIVE — 精调移动端
-   ════════════════════════════════════════════ */
+/* ========== 22. Shimmer & Loading ========== */
+.shimmer {
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ========== 23. Grid Background — v33 ========== */
+.grid-bg {
+  background-color: #f5f5f7;
+  background-image:
+    var(--gradient-mesh),
+    linear-gradient(rgba(93, 196, 179, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(93, 196, 179, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 48px 48px, 48px 48px;
+}
+
+/* ========== 24. Accessibility — v33 focus-visible ========== */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(93,196,179,0.15);
+}
+
+/* ========== 25. Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========== 26. Responsive — v33 precision ========== */
 @media (max-width: 768px) {
   .navbar, .navbar-dark { height: 48px; }
   .nav-inner { padding: 0 16px; }
@@ -623,7 +803,15 @@ body {
   .orb-2 { width: 280px; height: 280px; }
   .orb-3 { width: 200px; height: 200px; }
   .card-glass { border-radius: var(--r-2xl); }
-  .hero-content { padding: 0 16px; }
+
+  .toast {
+    left: 16px; right: 16px;
+    transform: translateX(0) translateY(-16px);
+    width: auto; max-width: none;
+  }
+  .toast.show {
+    transform: translateX(0) translateY(0);
+  }
 }
 @media (max-width: 480px) {
   .btn-primary { padding: 12px 20px; font-size: 14px; }

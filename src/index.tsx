@@ -658,19 +658,19 @@ app.get('/dashboard', (c) => {
   function renderStats(user){
     var c=document.getElementById('stats-row');
     var items=[
-      {label:tt('已解锁角色','Roles'),value:user.identities.length,icon:'fa-fingerprint',color:'#5DC4B3'},
-      {label:tt('发起机会','Originated'),value:initiatedDeals.length,icon:'fa-rocket',color:'#F59E0B'},
-      {label:tt('参与机会','Participated'),value:participatedDeals.length,icon:'fa-search-dollar',color:'#10B981'},
-      {label:tt('认证主体','Entities'),value:user.entities.length,icon:'fa-building',color:'#6366F1'},
+      {label:tt('已解锁角色','Roles'),value:user.identities.length,icon:'fa-fingerprint',gradient:'linear-gradient(135deg, #5DC4B3, #49A89A)',lightBg:'rgba(93,196,179,0.08)'},
+      {label:tt('发起机会','Originated'),value:initiatedDeals.length,icon:'fa-rocket',gradient:'linear-gradient(135deg, #f0840a, #ff9f0a)',lightBg:'rgba(245,158,11,0.08)'},
+      {label:tt('参与机会','Participated'),value:participatedDeals.length,icon:'fa-search-dollar',gradient:'linear-gradient(135deg, #30b750, #34c759)',lightBg:'rgba(16,185,129,0.08)'},
+      {label:tt('认证主体','Entities'),value:user.entities.length,icon:'fa-building',gradient:'linear-gradient(135deg, #0a84ff, #32ade6)',lightBg:'rgba(99,102,241,0.08)'},
     ];
     c.innerHTML=items.map(function(s){
-      return '<div class="card" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">'+
-        '<div style="width:40px;height:40px;border-radius:12px;background:'+s.color+'12;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
-          '<i class="fas '+s.icon+'" style="font-size:15px;color:'+s.color+';"></i>'+
+      return '<div class="card" style="padding:18px 20px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.04);">'+
+        '<div style="width:40px;height:40px;border-radius:12px;background:'+s.gradient+';display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.08);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">'+
+          '<i class="fas '+s.icon+'" style="font-size:15px;color:#fff;"></i>'+
         '</div>'+
         '<div>'+
-          '<div style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;">'+s.value+'</div>'+
-          '<div style="font-size:11px;color:var(--text-tertiary);font-weight:500;">'+s.label+'</div>'+
+          '<div class="stat-card-value" style="font-size:1.5rem;font-weight:800;letter-spacing:-0.035em;line-height:1.2;">'+s.value+'</div>'+
+          '<div style="font-size:0.7rem;color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;">'+s.label+'</div>'+
         '</div>'+
       '</div>';
     }).join('');
