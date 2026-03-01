@@ -1,106 +1,82 @@
-# 身份通 Identity Connect
+# 身份通 Identity Connect — V12 主操作台版
 
 ## 项目概述
-- **产品ID**: identity
-- **flowOrder**: 1
-- **角色**: shared (共用)
-- **阶段**: entry (统一入口)
-- **状态**: live 已上线
-- **专属色**: #3B82F6 (深) / #DBEAFE (浅)
-
-身份通是 Micro Connect 滴灌通平台"9个通"中的第1个产品——整个平台的**统一入口和路由中枢**。用户注册后解锁不同的角色（发起/参与/机构），然后通过对应的"通"来**发起投资机会**或**参与投资机会**。
-
-> 核心逻辑: 角色是门票，机会是核心。融资者发起机会（Deal），投资者参与机会。身份通负责角色管理和路由分发。
+- **名称**: 身份通 (Identity Connect)
+- **定位**: 滴灌通9通产品的统一登录入口 + 主操作台 + 路由中枢
+- **版本**: V12 Command Center Edition
+- **合规**: MicroConnect Product Bible V3.0
 
 ## URLs
-- **Sandbox**: https://3000-izbb756u5yvivi2bn44xr-cbeee0f9.sandbox.novita.ai
+- **Production**: https://l2-identity-connect.pages.dev
+- **GitHub**: https://github.com/SamZheng-Design/L2-Identity-Connect (branch: v12)
 
-## 已完成功能
-1. **登录/注册系统** — 手机号+验证码 / 邮箱+密码双模式
-2. **角色解锁** — 发起角色(Originator)、参与角色(Participant)、机构角色(Institution)
-3. **主体认证** — 公司/项目关联认证，Demo阶段自动通过
-4. **个人工作台** — 统计概览、角色卡片、机会列表、主体列表
-5. **机会管理** — 我发起的机会 / 我参与的机会，带状态和详情
-6. **9通快捷导航** — 按角色权限控制访问，显示产品状态(live/beta/coming)
-7. **完整i18n** — 中英文双语切换
-8. **完整API** — 7个核心接口 + 2个机会查询接口
-9. **Apple风格设计系统** — Product Bible V3.0 Design Token
+## V12 核心升级
 
-## 功能入口 URI
+### 1. 统一登录门户 (/)
+- 所有9个通产品的唯一登录入口
+- 登录页展示9通产品环，明确传达"一次登录，全通通行"
+- 手机号/邮箱双模式登录
+- JWT Token 认证，支持跨通 SSO
 
-### 页面路由
-| 路径 | 说明 |
-|------|------|
-| `GET /` | 登录/注册页（暗色沉浸式Hero） |
-| `GET /dashboard` | 个人工作台（需登录） |
-| `GET /entity-verify` | 主体认证（需登录） |
-| `?lang=en` | 任意页面切换英文 |
+### 2. 主操作台 (/dashboard) — Command Center
+- **全局概览**: 项目总数、招募中、活跃通道、解锁角色 4大指标
+- **快捷操作**: 根据已解锁角色动态生成操作入口
+- **项目管线**: 跨通 Pipeline 可视化，8阶段全生命周期追踪
+  - 发起 → 评估 → 风控 → 参与 → 条款 → 合约 → 结算 → 履约
+  - 每个阶段显示 completed / active / pending / blocked 状态
+- **身份角色**: 发起角色、参与角色、机构身份的一键解锁
+- **认证主体**: 已认证企业及相关deal展示
+- **九通产品矩阵**: 按角色分类的9通导航网格
+  - 共用 (身份通)
+  - 融资方 (发起通)
+  - 投资方 (评估通、风控通、参与通)
+  - 协同 (条款通、合约通、结算通、履约通)
 
-### API 接口
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/api/auth/verify-code` | 发送验证码 |
-| POST | `/api/auth/register` | 注册 |
-| POST | `/api/auth/login` | 登录 |
-| GET | `/api/user/profile` | 获取用户信息 |
-| POST | `/api/user/unlock` | 解锁角色 |
-| POST | `/api/entity/verify` | 提交主体认证 |
-| GET | `/api/entity/list` | 获取已认证主体列表 |
-| GET | `/api/deals/initiated` | 获取我发起的机会 |
-| GET | `/api/deals/participated` | 获取我参与的机会 |
+### 3. 主体认证 (/entity-verify)
+- 公司/项目主体认证表单
+- 自动关联机构身份
 
-## 业务逻辑
+## 九通产品矩阵
 
-### Y 型业务流程
-```
-                    ┌─ 发起角色 → 发起通(上传数据，创建机会)
-身份通(统一入口) ──┤                      ↓ 数据穿越管道
-                    └─ 参与角色 → 评估通 → 风控通 → 参与通(筛选机会，参与决策)
-                                                          ↓
-                         Y型汇合点：条款通 → 合约通 → 结算通 → 履约通
-```
+| 通 | 英文名 | ID | 角色 | 状态 |
+|---|---|---|---|---|
+| 身份通 | Identity Connect | identity | 共用 | Live |
+| 发起通 | Originate Connect | application | 融资方 | Beta |
+| 评估通 | Assess Connect | assess | 投资方 | Beta |
+| 风控通 | Risk Connect | risk | 投资方 | Live |
+| 参与通 | Deal Connect | opportunity | 投资方 | Live |
+| 条款通 | Terms Connect | terms | 协同 | Coming |
+| 合约通 | Contract Connect | contract | 协同 | Beta |
+| 结算通 | Settlement Connect | settlement | 协同 | Coming |
+| 履约通 | Performance Connect | performance | 协同 | Coming |
 
-### 核心概念
-- **角色(Role)** = 门票，决定你能进入哪些"通"
-  - 发起角色(Originator)：可进入发起通，上传数据，创建投资机会
-  - 参与角色(Participant)：可进入评估通/参与通，浏览和筛选机会
-  - 机构角色(Institution)：可进入所有通，批量管理
-- **机会(Deal)** = 核心业务对象，融资者发起、投资者参与
-- **主体(Entity)** = 公司/项目，发起机会需要先认证主体
+## API 端点
 
-## 数据模型
-
-### Deal (投资机会)
-```typescript
-interface Deal {
-  id: string; title: string; entityName: string; industry: string
-  amount: string; period: string
-  status: 'draft' | 'pending' | 'live' | 'closed' | 'matched'
-  createdAt: string; initiatorId: string; participantIds: string[]
-}
-```
-
-### User
-```typescript
-interface User {
-  id: string; phone?: string; email?: string; name: string
-  identities: Identity[]; entities: EntityAuth[]; createdAt: string
-}
-```
+| Method | Path | Description |
+|---|---|---|
+| POST | /api/auth/verify-code | 发送手机验证码 |
+| POST | /api/auth/register | 注册新用户 |
+| POST | /api/auth/login | 登录 |
+| POST | /api/auth/sso-token | 生成跨通SSO令牌 |
+| GET | /api/user/profile | 获取用户信息 |
+| POST | /api/user/unlock | 解锁角色身份 |
+| POST | /api/entity/verify | 认证机构主体 |
+| GET | /api/deals/all | 获取全部相关deal(含Pipeline) |
+| GET | /api/deals/initiated | 获取发起的deal |
+| GET | /api/deals/participated | 获取参与的deal |
 
 ## Demo 账号
-- **张三**（融资者）: 手机 `13800001234`，验证码 `123456` — 发起+参与角色，3条发起机会
-- **李四**（投资者）: 邮箱 `investor@fund.com`，密码 `demo123` — 参与+机构角色，3条参与机会
+- **融资者(张三)**: 手机 `13800001234` / 验证码 `123456`
+- **投资者(李四)**: 邮箱 `investor@fund.com` / 密码 `demo123`
 
-## 技术栈
-- **框架**: Hono + TypeScript
-- **部署**: Cloudflare Pages
-- **样式**: 自定义Design Token CSS (Apple风格)
-- **交互**: 纯原生JS（inline script）
-- **数据**: 内存Mock + localStorage (Demo)
-- **认证**: JWT (demo secret)
+## 技术架构
+- **Framework**: Hono + TypeScript + SSR
+- **Deployment**: Cloudflare Pages
+- **Design System**: Apple-inspired, Brand #5DC4B3, 严禁纯黑
+- **Authentication**: JWT (24h有效期), SSO跨通支持
+- **Data Flow**: 事件驱动 Event Bus (demo阶段 in-memory)
 
 ## 部署
-- **平台**: Cloudflare Pages
-- **状态**: ✅ Active
-- **最后更新**: 2026-02-27
+- **Platform**: Cloudflare Pages
+- **Status**: ✅ Active
+- **Last Updated**: 2026-03-01
