@@ -793,6 +793,320 @@ button:focus-visible {
   }
 }
 
+/* ========== 27. Profile Hero — Immersive Dashboard Header ========== */
+.profile-hero {
+  background: var(--gradient-hero);
+  position: relative; overflow: hidden;
+  padding: 80px 24px 72px;
+}
+.profile-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 25% 30%, rgba(93,196,179,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(46,196,182,0.08) 0%, transparent 55%);
+}
+.profile-hero::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.2;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.profile-hero-inner {
+  max-width: 1000px; margin: 0 auto; position: relative; z-index: 2;
+}
+.profile-top-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  flex-wrap: wrap; margin-bottom: 36px;
+}
+.profile-avatar-section {
+  display: flex; align-items: center; gap: 20px;
+}
+.profile-avatar {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: var(--gradient-primary);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 0 3px rgba(93,196,179,0.20), 0 8px 32px rgba(93,196,179,0.25);
+  transition: all 0.4s var(--ease-bounce);
+}
+.profile-avatar:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 4px rgba(93,196,179,0.30), 0 12px 40px rgba(93,196,179,0.35);
+}
+.profile-avatar-letter {
+  font-size: 28px; font-weight: 800; color: #fff;
+  font-family: 'Montserrat', 'Inter', sans-serif; letter-spacing: -0.03em;
+}
+.profile-avatar-ring {
+  position: absolute; inset: -4px; border-radius: 26px;
+  border: 2px solid rgba(93,196,179,0.20);
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+.profile-info { flex: 1; min-width: 0; }
+.profile-name {
+  font-size: 26px; font-weight: 800; color: rgba(255,255,255,0.95);
+  letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 4px;
+}
+.profile-meta {
+  font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 400;
+  margin-bottom: 12px;
+}
+.profile-role-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.profile-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  transition: all 0.25s var(--ease-smooth);
+}
+.profile-tag:hover { transform: translateY(-1px); }
+.profile-actions {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 8px;
+}
+
+/* Stats Ring Cards */
+.profile-stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+}
+.stat-ring-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 20px 12px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  transition: all 0.35s var(--ease-spring);
+}
+.stat-ring-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.10);
+  transform: translateY(-3px);
+}
+.stat-ring-visual {
+  position: relative; width: 60px; height: 60px; margin: 0 auto 10px;
+}
+.stat-ring-svg {
+  width: 60px; height: 60px; transform: rotate(-90deg);
+}
+.stat-ring-bg {
+  fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 4;
+}
+.stat-ring-fill {
+  fill: none; stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 150.8;
+  transition: stroke-dashoffset 1s var(--ease-out-expo);
+}
+.stat-ring-icon {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-ring-value {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1; margin-bottom: 3px;
+}
+.stat-ring-label {
+  font-size: 10.5px; color: rgba(255,255,255,0.35);
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* ========== 28. Deal Cards V2 — Rich Project Cards ========== */
+.deal-tabs-bar {
+  display: flex; gap: 0; margin-bottom: 16px;
+  border-bottom: 1.5px solid var(--border-light);
+}
+.deal-tab-v2 {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 12px 22px; font-size: 13px; font-weight: 600;
+  color: var(--text-tertiary); border: none; background: transparent;
+  cursor: pointer; border-bottom: 2.5px solid transparent;
+  transition: all 0.25s var(--ease-smooth); font-family: inherit;
+}
+.deal-tab-v2:hover { color: var(--text-secondary); }
+.deal-tab-v2.active {
+  color: var(--text-primary); font-weight: 700;
+  border-bottom-color: var(--brand);
+}
+.deal-tab-count {
+  font-size: 10.5px; padding: 1px 7px; border-radius: 9px; font-weight: 700;
+}
+
+.deal-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 14px;
+}
+.deal-card-v2 {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 20px; padding: 20px 22px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.35s var(--ease-spring);
+  position: relative; overflow: hidden;
+}
+.deal-card-v2::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-neon); opacity: 0;
+  transition: opacity 0.3s;
+}
+.deal-card-v2:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(93,196,179,0.12);
+}
+.deal-card-v2:hover::before { opacity: 1; }
+
+.deal-card-header {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
+}
+.deal-card-icon {
+  width: 44px; height: 44px; border-radius: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.deal-card-title-wrap { flex: 1; min-width: 0; }
+.deal-card-title {
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  line-height: 1.35; margin-bottom: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.deal-card-entity {
+  font-size: 11.5px; color: var(--text-tertiary); font-weight: 500;
+}
+.deal-status-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 8px;
+  font-size: 10.5px; font-weight: 700; white-space: nowrap; flex-shrink: 0;
+}
+.deal-status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+
+/* Deal Tags */
+.deal-card-tags {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+}
+.deal-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 7px;
+  font-size: 10.5px; font-weight: 600;
+  transition: all 0.2s;
+}
+.deal-tag:hover { transform: translateY(-1px); }
+
+/* Deal Progress Bar */
+.deal-progress-wrap { margin-top: 2px; }
+.deal-progress-bar {
+  width: 100%; height: 5px; border-radius: 3px;
+  background: rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 6px;
+}
+.deal-progress-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 0.8s var(--ease-out-expo);
+  position: relative;
+}
+.deal-progress-fill::after {
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  border-radius: 0 3px 3px 0;
+}
+.deal-progress-meta {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text-quaternary);
+}
+
+/* ========== 29. Entity Cards V2 — Rich Entity Display ========== */
+.entity-card-v2 {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 18px; padding: 18px 22px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow-card);
+  transition: all 0.35s var(--ease-spring);
+  position: relative; overflow: hidden;
+}
+.entity-card-v2::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, #6366F1, #8B5CF6, #a78bfa); opacity: 0;
+  transition: opacity 0.3s;
+}
+.entity-card-v2:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.08), 0 12px 40px rgba(99,102,241,0.06);
+  border-color: rgba(99,102,241,0.12);
+}
+.entity-card-v2:hover::before { opacity: 1; }
+
+.entity-card-left {
+  display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;
+}
+.entity-card-icon {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: linear-gradient(135deg, #eef2ff, #c7d2fe);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; position: relative;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+}
+.entity-verified-badge {
+  position: absolute; bottom: -3px; right: -3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.entity-card-info { flex: 1; min-width: 0; }
+.entity-card-name {
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.entity-card-meta {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;
+}
+.entity-meta-dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--text-quaternary);
+}
+.entity-card-tags {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.entity-mini-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 6px;
+  font-size: 10px; font-weight: 600;
+  background: rgba(99,102,241,0.06); color: #6366F1;
+  border: 1px solid rgba(99,102,241,0.08);
+}
+.entity-mini-tag-live {
+  background: rgba(52,199,89,0.06); color: #16a34a;
+  border-color: rgba(52,199,89,0.10);
+}
+.entity-mini-tag-verified {
+  background: rgba(93,196,179,0.06); color: var(--brand-dark);
+  border-color: rgba(93,196,179,0.10);
+}
+.entity-enter-btn {
+  width: 36px; height: 36px; border-radius: 10px; border: none;
+  background: rgba(99,102,241,0.06); color: #6366F1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.25s var(--ease-smooth);
+  flex-shrink: 0;
+}
+.entity-enter-btn:hover {
+  background: rgba(99,102,241,0.12); transform: translateX(2px);
+}
+
+/* ========== 30. Micro Badge — v4 tiny badge ========== */
+.micro-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
 /* ========== 26. Responsive — v33 precision ========== */
 @media (max-width: 768px) {
   .navbar, .navbar-dark { height: 48px; }
@@ -812,9 +1126,31 @@ button:focus-visible {
   .toast.show {
     transform: translateX(0) translateY(0);
   }
+
+  /* Profile Hero responsive */
+  .profile-hero { padding: 68px 16px 56px; }
+  .profile-top-row { flex-direction: column; }
+  .profile-avatar { width: 60px; height: 60px; border-radius: 18px; }
+  .profile-avatar-letter { font-size: 24px; }
+  .profile-avatar-ring { border-radius: 22px; }
+  .profile-name { font-size: 22px; }
+  .profile-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-ring-card { padding: 16px 10px; }
+  .stat-ring-value { font-size: 20px; }
+  .profile-actions { display: none; }
+
+  /* Deal grid responsive */
+  .deal-grid { grid-template-columns: 1fr; }
+  .deal-card-v2 { padding: 16px 18px; }
+  .deal-card-icon { width: 38px; height: 38px; border-radius: 11px; }
+  .deal-card-title { font-size: 13px; }
 }
 @media (max-width: 480px) {
   .btn-primary { padding: 12px 20px; font-size: 14px; }
   .input-field, .input-glass { padding: 12px 14px; font-size: 14px; }
   .identity-card { padding: 18px 16px; }
+  .profile-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .profile-avatar-section { gap: 14px; }
+  .entity-card-v2 { padding: 14px 16px; }
+  .entity-card-tags { display: none; }
 }

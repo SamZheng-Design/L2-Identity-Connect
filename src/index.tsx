@@ -482,8 +482,8 @@ app.get('/', (c) => {
 
 
 // ═══════════════════════════════════════════
-// PAGE 2 — 工作台 (/dashboard)
-// 角色卡片 → 我的机会 → 已认证主体 → 9通导航
+// PAGE 2 — 工作台 (/dashboard) — V4 Premium Upgrade
+// 沉浸式 Profile Hero + 进度/标签项目卡片 + 增强主体卡片
 // ═══════════════════════════════════════════
 app.get('/dashboard', (c) => {
   const lang = c.req.query('lang') || 'zh'
@@ -509,88 +509,98 @@ app.get('/dashboard', (c) => {
   }).join('')
 
   const body = `
-  <nav class="navbar" id="navbar">
+  <nav class="navbar-dark" id="navbar" style="position:sticky;top:0;z-index:100;">
     <div class="nav-inner">
       <a href="/dashboard${lang === 'en' ? '?lang=en' : ''}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
         ${LOGO}
-        <span class="font-brand" style="font-weight:700;font-size:13px;color:var(--text-primary);letter-spacing:0.8px;">MICRO CONNECT</span>
-        <span class="badge badge-brand" style="font-size:10px;"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
+        <span class="font-brand" style="font-weight:700;font-size:13px;color:rgba(255,255,255,0.80);letter-spacing:0.8px;">MICRO CONNECT</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:rgba(93,196,179,0.15);font-size:10px;font-weight:600;color:rgba(93,196,179,0.85);"><i class="fas fa-id-card" style="font-size:9px;"></i>${t.nav.title}</span>
       </a>
       <div style="display:flex;align-items:center;gap:8px;">
-        <a href="?lang=${t.nav.langToggle}" class="btn-ghost" style="padding:7px 12px;font-size:12px;">${t.nav.langLabel}</a>
-        <span id="nav-user" style="font-size:13px;color:var(--text-tertiary);font-weight:500;"></span>
-        <button onclick="doLogout()" class="btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--error);border-color:rgba(255,55,95,0.12);">
-          <i class="fas fa-sign-out-alt" style="font-size:11px;"></i>
+        <a href="?lang=${t.nav.langToggle}" class="btn-ghost-dark" style="padding:6px 12px;font-size:11px;">${t.nav.langLabel}</a>
+        <button onclick="doLogout()" class="btn-ghost-dark" style="padding:6px 12px;font-size:11px;border-color:rgba(255,55,95,0.20);color:rgba(255,100,130,0.7);">
+          <i class="fas fa-sign-out-alt" style="font-size:10px;"></i>
         </button>
       </div>
     </div>
   </nav>
 
-  <main style="max-width:960px;margin:0 auto;padding:32px 24px 0;">
-
-    <!-- Welcome -->
-    <div class="reveal" style="margin-bottom:36px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:16px;">
-          <div class="avatar-ring"><i class="fas fa-user" style="font-size:20px;color:#fff;"></i></div>
-          <div>
-            <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;" id="greeting">${t.dashboard.greeting}</h1>
-            <p style="font-size:13px;color:var(--text-tertiary);margin-top:3px;" id="sub-greeting">${t.dashboard.subtitle}</p>
+  <!-- ===== PROFILE HERO — Immersive Aurora Header ===== -->
+  <div class="profile-hero">
+    <div class="orb orb-1" style="width:400px;height:400px;top:-30%;left:-10%;"></div>
+    <div class="orb orb-2" style="width:350px;height:350px;bottom:-20%;right:-5%;"></div>
+    <div class="profile-hero-inner">
+      <div class="profile-top-row">
+        <div class="profile-avatar-section">
+          <div class="profile-avatar">
+            <span class="profile-avatar-letter" id="avatar-letter">?</span>
+            <div class="profile-avatar-ring"></div>
+          </div>
+          <div class="profile-info">
+            <h1 class="profile-name" id="greeting">${t.dashboard.greeting}</h1>
+            <p class="profile-meta" id="sub-greeting">${t.dashboard.subtitle}</p>
+            <div class="profile-role-tags" id="profile-role-tags"></div>
           </div>
         </div>
-        <a href="/entity-verify${lang === 'en' ? '?lang=en' : ''}" class="btn-ghost" style="font-size:12px;">
-          <i class="fas fa-plus-circle" style="font-size:11px;"></i>${t.dashboard.addEntity}
-        </a>
+        <div class="profile-actions">
+          <a href="/entity-verify${lang === 'en' ? '?lang=en' : ''}" class="btn-ghost-dark" style="padding:10px 18px;font-size:12px;border-radius:10px;">
+            <i class="fas fa-plus-circle" style="font-size:11px;"></i>${t.dashboard.addEntity}
+          </a>
+        </div>
       </div>
-    </div>
 
-    <!-- Stats Row -->
-    <div class="reveal stagger-1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:36px;" id="stats-row"></div>
+      <!-- Stats Ring Cards -->
+      <div class="profile-stats-grid" id="stats-row"></div>
+    </div>
+  </div>
+
+  <main style="max-width:1000px;margin:0 auto;padding:0 24px;">
 
     <!-- Role Cards -->
-    <div class="reveal stagger-2">
-      <div class="section-heading">
+    <div class="reveal stagger-1" style="margin-top:-28px;position:relative;z-index:3;">
+      <div class="section-heading" style="margin-bottom:14px;">
         <div class="section-icon" style="background:linear-gradient(135deg,#b2e8de,#5DC4B3);"><i class="fas fa-fingerprint" style="font-size:13px;color:#fff;"></i></div>
         <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.roleSection}</h2>
+        <span style="font-size:11px;color:var(--text-quaternary);margin-left:auto;">${zh ? '角色 = 门票' : 'Role = Ticket'}</span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:36px;" id="role-cards"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:40px;" id="role-cards"></div>
     </div>
 
-    <!-- My Deals -->
-    <div class="reveal stagger-3">
-      <div class="section-heading">
+    <!-- My Deals — Enhanced -->
+    <div class="reveal stagger-2">
+      <div class="section-heading" style="margin-bottom:14px;">
         <div class="section-icon" style="background:linear-gradient(135deg,#fde68a,#F59E0B);"><i class="fas fa-briefcase" style="font-size:13px;color:#fff;"></i></div>
         <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.dealSection}</h2>
       </div>
 
       <!-- Tabs: Initiated / Participated -->
-      <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--border-light);">
-        <button class="deal-tab active" id="dtab-init" onclick="switchDealTab('init')" style="flex:none;padding:10px 20px;font-size:13px;font-weight:600;color:var(--text-tertiary);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;">
-          <i class="fas fa-rocket" style="margin-right:5px;font-size:11px;color:#F59E0B;"></i>${t.dashboard.initiated}
-          <span id="count-init" style="margin-left:4px;font-size:11px;padding:1px 6px;border-radius:8px;background:rgba(245,158,11,0.08);color:#F59E0B;"></span>
+      <div class="deal-tabs-bar">
+        <button class="deal-tab-v2 active" id="dtab-init" onclick="switchDealTab('init')">
+          <i class="fas fa-rocket" style="font-size:11px;color:#F59E0B;"></i>${t.dashboard.initiated}
+          <span class="deal-tab-count" id="count-init" style="background:rgba(245,158,11,0.12);color:#F59E0B;"></span>
         </button>
-        <button class="deal-tab" id="dtab-part" onclick="switchDealTab('part')" style="flex:none;padding:10px 20px;font-size:13px;font-weight:600;color:var(--text-tertiary);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;">
-          <i class="fas fa-search-dollar" style="margin-right:5px;font-size:11px;color:#10B981;"></i>${t.dashboard.participated}
-          <span id="count-part" style="margin-left:4px;font-size:11px;padding:1px 6px;border-radius:8px;background:rgba(16,185,129,0.08);color:#10B981;"></span>
+        <button class="deal-tab-v2" id="dtab-part" onclick="switchDealTab('part')">
+          <i class="fas fa-search-dollar" style="font-size:11px;color:#10B981;"></i>${t.dashboard.participated}
+          <span class="deal-tab-count" id="count-part" style="background:rgba(16,185,129,0.12);color:#10B981;"></span>
         </button>
       </div>
-      <div id="deal-list" style="margin-bottom:36px;"></div>
+      <div id="deal-list" style="margin-bottom:40px;"></div>
     </div>
 
-    <!-- Entities -->
-    <div class="reveal stagger-4">
-      <div class="section-heading">
+    <!-- Entities — Enhanced -->
+    <div class="reveal stagger-3">
+      <div class="section-heading" style="margin-bottom:14px;">
         <div class="section-icon" style="background:linear-gradient(135deg,#c7d2fe,#6366F1);"><i class="fas fa-building" style="font-size:13px;color:#fff;"></i></div>
         <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.entitySection}</h2>
       </div>
-      <div id="entity-list" style="margin-bottom:36px;"></div>
+      <div id="entity-list" style="margin-bottom:40px;"></div>
     </div>
 
     <div class="divider"></div>
 
     <!-- 9 Connects -->
-    <div class="reveal stagger-5">
-      <div class="section-heading">
+    <div class="reveal stagger-4">
+      <div class="section-heading" style="margin-bottom:14px;">
         <div class="section-icon" style="background:linear-gradient(135deg,#5DC4B3,#3D8F83);"><i class="fas fa-th" style="font-size:13px;color:#fff;"></i></div>
         <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.quickNav}</h2>
         <span style="font-size:11px;color:var(--text-quaternary);margin-left:auto;">${zh ? '9个通 · 产品矩阵' : '9 Connects'}</span>
@@ -624,11 +634,15 @@ app.get('/dashboard', (c) => {
   var tt=function(z,e){return LANG==='en'?e:z};
   var STATUS_MAP={draft:tt('草稿','Draft'),pending:tt('审核中','Pending'),live:tt('招募中','Live'),closed:tt('已关闭','Closed'),matched:tt('已匹配','Matched')};
   var STATUS_COLOR={draft:'#86868b',pending:'#F59E0B',live:'#34c759',closed:'#86868b',matched:'#6366F1'};
+  var STATUS_BG={draft:'rgba(134,134,139,0.08)',pending:'rgba(245,158,11,0.08)',live:'rgba(52,199,89,0.08)',closed:'rgba(134,134,139,0.08)',matched:'rgba(99,102,241,0.08)'};
+  var PROGRESS_MAP={draft:15,pending:35,live:65,closed:100,matched:100};
+  var INDUSTRY_ICONS={'餐饮':'fa-utensils','零售':'fa-store','健身':'fa-dumbbell','茶饮':'fa-mug-hot','默认':'fa-briefcase'};
+  var INDUSTRY_COLORS={'餐饮':'#F59E0B','零售':'#6366F1','健身':'#10B981','茶饮':'#8B5CF6','默认':'#5DC4B3'};
 
   var ROLES={
-    initiator:{name:tt('发起角色','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator'},
-    participant:{name:tt('参与角色','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant'},
-    organization:{name:tt('机构角色','Institution'),icon:'fa-building',desc:tt('以机构身份批量管理机会，自定义工作流','Manage deals at scale with custom workflows'),action:tt('进入机构台','Org Workspace'),target:tt('全部通','All Connects'),gradient:'ic-organization'}
+    initiator:{name:tt('发起角色','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator',tagColor:'#F59E0B',tagBg:'rgba(245,158,11,0.12)'},
+    participant:{name:tt('参与角色','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant',tagColor:'#10B981',tagBg:'rgba(16,185,129,0.12)'},
+    organization:{name:tt('机构角色','Institution'),icon:'fa-building',desc:tt('以机构身份批量管理机会，自定义工作流','Manage deals at scale with custom workflows'),action:tt('进入机构台','Org Workspace'),target:tt('全部通','All Connects'),gradient:'ic-organization',tagColor:'#6366F1',tagBg:'rgba(99,102,241,0.12)'}
   };
 
   var initiatedDeals=[], participatedDeals=[], currentDealTab='init';
@@ -637,8 +651,10 @@ app.get('/dashboard', (c) => {
     if(!getToken()||!getUser()){window.location.href='/'+window.location.search;return}
     var u=getUser();
     document.getElementById('greeting').textContent=tt('你好，','Hello, ')+u.name;
-    document.getElementById('sub-greeting').textContent=tt('注册于 ','Since ')+u.createdAt;
-    var nu=document.getElementById('nav-user');if(nu)nu.textContent=u.name;
+    document.getElementById('sub-greeting').textContent=tt('注册于 ','Member since ')+u.createdAt;
+    // Avatar letter
+    var al=document.getElementById('avatar-letter');
+    if(al) al.textContent=u.name.charAt(0).toUpperCase();
 
     // Fetch deals
     try{
@@ -648,6 +664,7 @@ app.get('/dashboard', (c) => {
       if(r2.success) participatedDeals=r2.deals;
     }catch(e){}
 
+    renderProfileTags(u);
     renderStats(u);
     renderRoles(u);
     renderDeals();
@@ -655,23 +672,36 @@ app.get('/dashboard', (c) => {
     updateConnects(u);
   })();
 
+  function renderProfileTags(user){
+    var c=document.getElementById('profile-role-tags');
+    if(!c) return;
+    var tags=user.identities.map(function(i){
+      var m=ROLES[i.role];
+      return '<span class="profile-tag" style="background:'+m.tagBg+';color:'+m.tagColor+';border:1px solid '+m.tagColor+'22;"><i class="fas '+m.icon+'" style="font-size:9px;"></i>'+m.name+'</span>';
+    });
+    if(!tags.length) tags=['<span class="profile-tag" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.08);"><i class="fas fa-lock" style="font-size:9px;"></i>'+tt('暂无角色','No roles')+'</span>'];
+    c.innerHTML=tags.join('');
+  }
+
   function renderStats(user){
     var c=document.getElementById('stats-row');
+    var totalDeals=initiatedDeals.length+participatedDeals.length;
+    var liveDeals=initiatedDeals.concat(participatedDeals).filter(function(d){return d.status==='live'}).length;
     var items=[
-      {label:tt('已解锁角色','Roles'),value:user.identities.length,icon:'fa-fingerprint',gradient:'linear-gradient(135deg, #5DC4B3, #49A89A)',lightBg:'rgba(93,196,179,0.08)'},
-      {label:tt('发起机会','Originated'),value:initiatedDeals.length,icon:'fa-rocket',gradient:'linear-gradient(135deg, #f0840a, #ff9f0a)',lightBg:'rgba(245,158,11,0.08)'},
-      {label:tt('参与机会','Participated'),value:participatedDeals.length,icon:'fa-search-dollar',gradient:'linear-gradient(135deg, #30b750, #34c759)',lightBg:'rgba(16,185,129,0.08)'},
-      {label:tt('认证主体','Entities'),value:user.entities.length,icon:'fa-building',gradient:'linear-gradient(135deg, #0a84ff, #32ade6)',lightBg:'rgba(99,102,241,0.08)'},
+      {label:tt('解锁角色','Roles'),value:user.identities.length,max:3,icon:'fa-fingerprint',color:'#5DC4B3',bg:'rgba(93,196,179,0.12)'},
+      {label:tt('发起机会','Originated'),value:initiatedDeals.length,max:10,icon:'fa-rocket',color:'#F59E0B',bg:'rgba(245,158,11,0.12)'},
+      {label:tt('参与机会','Participated'),value:participatedDeals.length,max:10,icon:'fa-search-dollar',color:'#10B981',bg:'rgba(16,185,129,0.12)'},
+      {label:tt('招募中','Live Deals'),value:liveDeals,max:totalDeals||1,icon:'fa-signal',color:'#32ade6',bg:'rgba(50,173,230,0.12)'},
     ];
     c.innerHTML=items.map(function(s){
-      return '<div class="card" style="padding:18px 20px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.04);">'+
-        '<div style="width:40px;height:40px;border-radius:12px;background:'+s.gradient+';display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.08);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);">'+
-          '<i class="fas '+s.icon+'" style="font-size:15px;color:#fff;"></i>'+
+      var pct=Math.min(100,Math.round((s.value/s.max)*100));
+      return '<div class="stat-ring-card">'+
+        '<div class="stat-ring-visual" style="--ring-color:'+s.color+';--ring-pct:'+pct+';">'+
+          '<svg viewBox="0 0 60 60" class="stat-ring-svg"><circle class="stat-ring-bg" cx="30" cy="30" r="24"/><circle class="stat-ring-fill" cx="30" cy="30" r="24" style="stroke:'+s.color+';stroke-dashoffset:calc(150.8 - 150.8 * '+pct+' / 100);"/></svg>'+
+          '<div class="stat-ring-icon" style="background:'+s.bg+';"><i class="fas '+s.icon+'" style="font-size:14px;color:'+s.color+';"></i></div>'+
         '</div>'+
-        '<div>'+
-          '<div class="stat-card-value" style="font-size:1.5rem;font-weight:800;letter-spacing:-0.035em;line-height:1.2;">'+s.value+'</div>'+
-          '<div style="font-size:0.7rem;color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;">'+s.label+'</div>'+
-        '</div>'+
+        '<div class="stat-ring-value" style="color:'+s.color+';">'+s.value+'</div>'+
+        '<div class="stat-ring-label">'+s.label+'</div>'+
       '</div>';
     }).join('');
   }
@@ -683,21 +713,23 @@ app.get('/dashboard', (c) => {
       var m=ROLES[role];
       var id=user.identities.find(function(i){return i.role===role});
       var ok=!!id;
+      // Count deals for this role
+      var dealCount=role==='initiator'?initiatedDeals.length:(role==='participant'?participatedDeals.length:(initiatedDeals.length+participatedDeals.length));
       return '<div class="identity-card '+(ok?m.gradient:'ic-locked')+'">'+
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'+
-          '<div style="width:42px;height:42px;border-radius:12px;background:'+(ok?'rgba(255,255,255,0.28)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;">'+
-            '<i class="fas '+m.icon+'" style="font-size:17px;color:'+(ok?'rgba(0,0,0,0.5)':'var(--text-quaternary)')+';"></i>'+
+          '<div style="width:44px;height:44px;border-radius:13px;background:'+(ok?'rgba(255,255,255,0.30)':'rgba(0,0,0,0.03)')+';display:flex;align-items:center;justify-content:center;box-shadow:'+(ok?'0 2px 8px rgba(0,0,0,0.06)':'none')+';backdrop-filter:blur(8px);">'+
+            '<i class="fas '+m.icon+'" style="font-size:18px;color:'+(ok?'rgba(0,0,0,0.55)':'var(--text-quaternary)')+';"></i>'+
           '</div>'+
-          (ok
-            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.35);font-size:10px;font-weight:600;color:rgba(0,0,0,0.5);"><i class="fas fa-check-circle" style="font-size:9px;color:#16a34a;"></i>'+tt('已解锁','Unlocked')+'</span>'
-            : '<span style="font-size:10px;color:var(--text-quaternary);font-weight:500;">'+tt('未解锁','Locked')+'</span>'
-          )+
+          '<div style="display:flex;align-items:center;gap:6px;">'+
+            (ok?'<span class="micro-badge" style="background:rgba(255,255,255,0.40);color:rgba(0,0,0,0.50);"><i class="fas fa-check-circle" style="font-size:8px;color:#16a34a;"></i>'+tt('已解锁','Active')+'</span>':'<span class="micro-badge" style="background:rgba(0,0,0,0.03);color:var(--text-quaternary);"><i class="fas fa-lock" style="font-size:8px;"></i>'+tt('未解锁','Locked')+'</span>')+
+            (ok&&dealCount>0?'<span class="micro-badge" style="background:rgba(255,255,255,0.30);color:rgba(0,0,0,0.45);"><i class="fas fa-briefcase" style="font-size:8px;"></i>'+dealCount+'</span>':'')+
+          '</div>'+
         '</div>'+
-        '<h3 style="font-size:15px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.70)':'var(--text-secondary)')+';margin-bottom:4px;">'+m.name+'</h3>'+
-        '<p style="font-size:11px;color:'+(ok?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:16px;line-height:1.6;">'+m.desc+'</p>'+
+        '<h3 style="font-size:16px;font-weight:700;color:'+(ok?'rgba(0,0,0,0.72)':'var(--text-secondary)')+';margin-bottom:5px;letter-spacing:-0.02em;">'+m.name+'</h3>'+
+        '<p style="font-size:11.5px;color:'+(ok?'rgba(0,0,0,0.38)':'var(--text-tertiary)')+';margin-bottom:18px;line-height:1.65;">'+m.desc+'</p>'+
         (ok
           ? '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-              '<span style="font-size:10px;color:rgba(0,0,0,0.25);">'+id.unlockedAt+'</span>'+
+              '<span style="font-size:10px;color:rgba(0,0,0,0.22);"><i class="fas fa-calendar-check" style="margin-right:3px;font-size:9px;"></i>'+id.unlockedAt+'</span>'+
               '<button class="btn-card-action" onclick="goConnect(&quot;'+role+'&quot;)">'+m.action+' <i class="fas fa-arrow-right" style="margin-left:4px;font-size:9px;"></i></button>'+
             '</div>'
           : '<button class="btn-unlock" onclick="unlockRole(&quot;'+role+'&quot;)"><i class="fas fa-lock-open" style="margin-right:6px;font-size:11px;"></i>'+tt('解锁此角色','Unlock Role')+'</button>'
@@ -708,12 +740,8 @@ app.get('/dashboard', (c) => {
 
   function switchDealTab(tab){
     currentDealTab=tab;
-    document.getElementById('dtab-init').classList.toggle('active',tab==='init');
-    document.getElementById('dtab-part').classList.toggle('active',tab==='part');
-    document.getElementById('dtab-init').style.color=tab==='init'?'var(--text-primary)':'var(--text-tertiary)';
-    document.getElementById('dtab-part').style.color=tab==='part'?'var(--text-primary)':'var(--text-tertiary)';
-    document.getElementById('dtab-init').style.borderBottomColor=tab==='init'?'#F59E0B':'transparent';
-    document.getElementById('dtab-part').style.borderBottomColor=tab==='part'?'#10B981':'transparent';
+    document.querySelectorAll('.deal-tab-v2').forEach(function(el){el.classList.remove('active')});
+    document.getElementById(tab==='init'?'dtab-init':'dtab-part').classList.add('active');
     renderDeals();
   }
 
@@ -722,65 +750,97 @@ app.get('/dashboard', (c) => {
     var list=currentDealTab==='init'?initiatedDeals:participatedDeals;
     document.getElementById('count-init').textContent=initiatedDeals.length;
     document.getElementById('count-part').textContent=participatedDeals.length;
-    // Activate first tab style on init
-    if(currentDealTab==='init'){
-      document.getElementById('dtab-init').style.color='var(--text-primary)';
-      document.getElementById('dtab-init').style.borderBottomColor='#F59E0B';
-    }
 
     if(!list.length){
       var msg=currentDealTab==='init'?tt('${t.dashboard.noDealInit}','${t.dashboard.noDealInit}'):tt('${t.dashboard.noDealPart}','${t.dashboard.noDealPart}');
       var hint=currentDealTab==='init'?tt('解锁发起角色 → 认证主体 → 去发起通上传数据','Unlock originator → verify entity → upload data'):tt('解锁参与角色后，可在参与通浏览和筛选机会','Unlock participant to browse deals');
-      c.innerHTML='<div class="card" style="padding:32px;text-align:center;">'+
-        '<i class="fas fa-briefcase" style="font-size:24px;color:var(--text-quaternary);margin-bottom:12px;display:block;"></i>'+
-        '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">'+msg+'</p>'+
-        '<p style="font-size:11px;color:var(--text-quaternary);line-height:1.6;">'+hint+'</p></div>';
+      c.innerHTML='<div class="card" style="padding:40px;text-align:center;">'+
+        '<div style="width:56px;height:56px;border-radius:16px;background:rgba(93,196,179,0.06);display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;">'+
+          '<i class="fas fa-briefcase" style="font-size:22px;color:var(--text-quaternary);"></i></div>'+
+        '<p style="font-size:14px;color:var(--text-secondary);margin-bottom:6px;font-weight:600;">'+msg+'</p>'+
+        '<p style="font-size:12px;color:var(--text-quaternary);line-height:1.6;max-width:320px;margin:0 auto;">'+hint+'</p></div>';
       return;
     }
 
-    c.innerHTML=list.map(function(d){
+    c.innerHTML='<div class="deal-grid">'+list.map(function(d){
       var sc=STATUS_COLOR[d.status]||'#86868b';
       var sl=STATUS_MAP[d.status]||d.status;
-      return '<div class="card" style="padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">'+
-        '<div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">'+
-          '<div style="width:40px;height:40px;border-radius:11px;background:'+(currentDealTab==='init'?'linear-gradient(135deg,#fef3c7,#fbbf24)':'linear-gradient(135deg,#d1fae5,#10b981)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
-            '<i class="fas '+(currentDealTab==='init'?'fa-rocket':'fa-search-dollar')+'" style="font-size:14px;color:rgba(0,0,0,0.45);"></i>'+
+      var bg=STATUS_BG[d.status]||'rgba(0,0,0,0.04)';
+      var pct=PROGRESS_MAP[d.status]||0;
+      var indIcon=INDUSTRY_ICONS[d.industry]||INDUSTRY_ICONS['默认'];
+      var indColor=INDUSTRY_COLORS[d.industry]||INDUSTRY_COLORS['默认'];
+      var isInit=currentDealTab==='init';
+      var partCount=d.participantIds?d.participantIds.length:0;
+
+      return '<div class="deal-card-v2">'+
+        '<div class="deal-card-header">'+
+          '<div class="deal-card-icon" style="background:linear-gradient(135deg,'+(isInit?'#fef3c7,#fbbf24':'#d1fae5,#10b981')+');">'+
+            '<i class="fas '+(isInit?'fa-rocket':'fa-search-dollar')+'" style="font-size:16px;color:rgba(0,0,0,0.45);"></i>'+
           '</div>'+
-          '<div style="min-width:0;flex:1;">'+
-            '<div style="font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+d.title+'</div>'+
-            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;">'+d.industry+' · '+d.amount+' · '+d.period+'</div>'+
+          '<div class="deal-card-title-wrap">'+
+            '<div class="deal-card-title">'+d.title+'</div>'+
+            '<div class="deal-card-entity"><i class="fas fa-store" style="font-size:9px;margin-right:3px;color:var(--text-quaternary);"></i>'+d.entityName+'</div>'+
           '</div>'+
-        '</div>'+
-        '<div style="display:flex;align-items:center;gap:8px;">'+
-          '<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;background:'+sc+'12;font-size:10px;font-weight:600;color:'+sc+';">'+
-            '<span style="width:5px;height:5px;border-radius:50%;background:'+sc+';"></span>'+sl+
+          '<span class="deal-status-pill" style="background:'+bg+';color:'+sc+';border:1px solid '+sc+'18;">'+
+            '<span class="deal-status-dot" style="background:'+sc+';'+(d.status==='live'?'animation:pulse-dot 2s infinite;':'')+'"></span>'+sl+
           '</span>'+
-          '<span style="font-size:10px;color:var(--text-quaternary);">'+d.createdAt+'</span>'+
+        '</div>'+
+        // Tags row
+        '<div class="deal-card-tags">'+
+          '<span class="deal-tag" style="background:'+indColor+'12;color:'+indColor+';border:1px solid '+indColor+'18;"><i class="fas '+indIcon+'" style="font-size:9px;"></i>'+d.industry+'</span>'+
+          '<span class="deal-tag" style="background:rgba(245,158,11,0.06);color:#d97706;border:1px solid rgba(245,158,11,0.12);"><i class="fas fa-coins" style="font-size:9px;"></i>'+d.amount+'</span>'+
+          '<span class="deal-tag" style="background:rgba(99,102,241,0.06);color:#6366F1;border:1px solid rgba(99,102,241,0.10);"><i class="fas fa-clock" style="font-size:9px;"></i>'+d.period+'</span>'+
+          (partCount>0?'<span class="deal-tag" style="background:rgba(16,185,129,0.06);color:#10B981;border:1px solid rgba(16,185,129,0.10);"><i class="fas fa-users" style="font-size:9px;"></i>'+partCount+tt(' 参与',' joined')+'</span>':'')+
+        '</div>'+
+        // Progress bar
+        '<div class="deal-progress-wrap">'+
+          '<div class="deal-progress-bar"><div class="deal-progress-fill" style="width:'+pct+'%;background:'+sc+';"></div></div>'+
+          '<div class="deal-progress-meta">'+
+            '<span>'+d.createdAt+'</span>'+
+            '<span style="color:'+sc+';font-weight:600;">'+pct+'%</span>'+
+          '</div>'+
         '</div>'+
       '</div>';
-    }).join('');
+    }).join('')+'</div>';
   }
 
   function renderEntities(user){
     var c=document.getElementById('entity-list');
     if(!user.entities||!user.entities.length){
-      c.innerHTML='<div class="card" style="padding:32px;text-align:center;">'+
-        '<div style="width:44px;height:44px;border-radius:13px;background:rgba(99,102,241,0.06);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">'+
-          '<i class="fas fa-building" style="font-size:18px;color:var(--text-quaternary);"></i></div>'+
-        '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">'+tt('暂无已认证主体','No verified entities yet')+'</p>'+
-        '<p style="font-size:11px;color:var(--text-quaternary);">'+tt('认证主体后可发起融资机会','Verify an entity to originate deals')+'</p></div>';
+      c.innerHTML='<div class="card" style="padding:40px;text-align:center;">'+
+        '<div style="width:56px;height:56px;border-radius:16px;background:rgba(99,102,241,0.06);display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;">'+
+          '<i class="fas fa-building" style="font-size:22px;color:var(--text-quaternary);"></i></div>'+
+        '<p style="font-size:14px;color:var(--text-secondary);margin-bottom:6px;font-weight:600;">'+tt('暂无已认证主体','No verified entities yet')+'</p>'+
+        '<p style="font-size:12px;color:var(--text-quaternary);line-height:1.6;max-width:320px;margin:0 auto;">'+tt('认证主体后可发起融资机会','Verify an entity to originate deals')+'</p></div>';
       return;
     }
     c.innerHTML=user.entities.map(function(e){
-      return '<div class="card" style="padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">'+
-        '<div style="display:flex;align-items:center;gap:12px;">'+
-          '<div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#eef2ff,#c7d2fe);display:flex;align-items:center;justify-content:center;"><i class="fas fa-store" style="font-size:14px;color:#6366f1;"></i></div>'+
-          '<div>'+
-            '<div style="font-size:13px;font-weight:600;color:var(--text-primary);">'+e.entityName+'</div>'+
-            '<div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;"><i class="fas fa-user-tag" style="margin-right:3px;font-size:9px;"></i>'+e.role+' · '+e.verifiedAt+'</div>'+
+      // Count deals for this entity
+      var relatedDeals=initiatedDeals.filter(function(d){return d.entityName===e.entityName});
+      var liveCount=relatedDeals.filter(function(d){return d.status==='live'}).length;
+      return '<div class="entity-card-v2">'+
+        '<div class="entity-card-left">'+
+          '<div class="entity-card-icon">'+
+            '<i class="fas fa-store" style="font-size:16px;color:#6366f1;"></i>'+
+            '<span class="entity-verified-badge"><i class="fas fa-check" style="font-size:7px;color:#fff;"></i></span>'+
+          '</div>'+
+          '<div class="entity-card-info">'+
+            '<div class="entity-card-name">'+e.entityName+'</div>'+
+            '<div class="entity-card-meta">'+
+              '<span><i class="fas fa-user-tag" style="margin-right:3px;font-size:9px;"></i>'+e.role+'</span>'+
+              '<span class="entity-meta-dot"></span>'+
+              '<span>'+e.verifiedAt+'</span>'+
+            '</div>'+
+            '<div class="entity-card-tags">'+
+              (relatedDeals.length>0?'<span class="entity-mini-tag"><i class="fas fa-briefcase" style="font-size:8px;"></i>'+relatedDeals.length+tt(' 个机会',' deals')+'</span>':'')+
+              (liveCount>0?'<span class="entity-mini-tag entity-mini-tag-live"><i class="fas fa-signal" style="font-size:8px;"></i>'+liveCount+tt(' 招募中',' live')+'</span>':'')+
+              '<span class="entity-mini-tag entity-mini-tag-verified"><i class="fas fa-shield-alt" style="font-size:8px;"></i>'+tt('已认证','Verified')+'</span>'+
+            '</div>'+
           '</div>'+
         '</div>'+
-        '<button class="btn-ghost" style="font-size:11px;padding:6px 12px;" onclick="showToast(&quot;'+tt('协作空间开发中','Workspace coming soon')+'&quot;,&quot;info&quot;)"><i class="fas fa-arrow-right" style="margin-right:3px;font-size:9px;"></i>'+tt('进入','Enter')+'</button>'+
+        '<button class="entity-enter-btn" onclick="showToast(&quot;'+tt('协作空间开发中','Workspace coming soon')+'&quot;,&quot;info&quot;)">'+
+          '<i class="fas fa-arrow-right" style="font-size:11px;"></i>'+
+        '</button>'+
       '</div>';
     }).join('');
   }
@@ -801,7 +861,7 @@ app.get('/dashboard', (c) => {
     if(r.success){
       var u=getUser();u.identities.push(r.identity);localStorage.setItem('ic_user',JSON.stringify(u));
       showToast(tt('角色解锁成功','Role unlocked!'),'success');
-      renderStats(u);renderRoles(u);updateConnects(u);
+      renderProfileTags(u);renderStats(u);renderRoles(u);updateConnects(u);
     } else showToast(r.message,'error');
   }
 
