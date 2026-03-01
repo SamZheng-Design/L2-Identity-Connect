@@ -190,7 +190,7 @@ function T(lang: string) {
     },
     connects: [
       { id: 'identity', name: zh ? '身份通' : 'Identity', color: '#3B82F6', icon: 'fa-id-card', requires: [] as string[], status: 'live' as const, desc: zh ? '统一入口 · 角色管理' : 'Unified entry · Role management' },
-      { id: 'application', name: zh ? '发起通' : 'Originate', color: '#5B6ECF', icon: 'fa-upload', requires: ['initiator'], status: 'beta' as const, desc: zh ? '发起机会 · AI打包' : 'Originate deals · AI packaging' },
+      { id: 'application', name: zh ? '发起通' : 'Originate', color: '#3D8F83', icon: 'fa-upload', requires: ['initiator'], status: 'beta' as const, desc: zh ? '发起机会 · AI打包' : 'Originate deals · AI packaging' },
       { id: 'assess', name: zh ? '评估通' : 'Assess', color: '#6366F1', icon: 'fa-filter', requires: ['participant'], status: 'beta' as const, desc: zh ? '自建AI筛子' : 'Build AI sieves' },
       { id: 'risk', name: zh ? '风控通' : 'Risk', color: '#6366F1', icon: 'fa-shield-alt', requires: ['participant'], status: 'live' as const, desc: zh ? '风控规则 · 验真' : 'Risk rules · Verification' },
       { id: 'opportunity', name: zh ? '参与通' : 'Deal', color: '#3D8F83', icon: 'fa-handshake', requires: ['participant'], status: 'live' as const, desc: zh ? '筛后看板 · 参与决策' : 'Deal board · Participate' },
@@ -306,7 +306,7 @@ function shell(title: string, body: string, lang: string): string {
   function getUser(){try{return JSON.parse(localStorage.getItem('ic_user')||'null')}catch(e){return null}}
   function setAuth(t,u){localStorage.setItem('ic_token',t);localStorage.setItem('ic_user',JSON.stringify(u))}
   function clearAuth(){localStorage.removeItem('ic_token');localStorage.removeItem('ic_user')}
-  function doLogout(){clearAuth();window.location.href='/'}
+  function doLogout(){clearAuth();window.location.href='/?logout=1'}
   function getLang(){return new URLSearchParams(window.location.search).get('lang')||'zh'}
   function api(p,o){o=o||{};var t=getToken();var h=Object.assign({'Content-Type':'application/json'},t?{Authorization:'Bearer '+t}:{},o.headers||{});return fetch(p,Object.assign({},o,{headers:h})).then(function(r){return r.json()})}
   </script>
@@ -422,7 +422,7 @@ app.get('/', (c) => {
         <!-- Role hints — 正确的业务逻辑 -->
         <div style="display:flex;justify-content:center;gap:8px;margin-top:20px;animation:fade-in 1s .6s both;">
           <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
-            <i class="fas fa-rocket" style="color:#7B8FDF;font-size:9px;"></i>${zh ? '发起机会' : 'Originate'}
+            <i class="fas fa-rocket" style="color:#5DC4B3;font-size:9px;"></i>${zh ? '发起机会' : 'Originate'}
           </span>
           <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:rgba(255,255,255,0.28);">
             <i class="fas fa-search-dollar" style="color:#5DC4B3;font-size:9px;"></i>${zh ? '参与机会' : 'Participate'}
@@ -436,7 +436,16 @@ app.get('/', (c) => {
   </div>
 
   <script>
-  (function(){if(getToken()&&getUser()){window.location.href='/dashboard'+window.location.search}})();
+  (function(){
+    var params=new URLSearchParams(window.location.search);
+    if(params.get('logout')==='1'){clearAuth();params.delete('logout');var newUrl=window.location.pathname;if(params.toString())newUrl+='?'+params.toString();window.history.replaceState(null,'',newUrl);return;}
+    if(getToken()&&getUser()){
+      api('/api/user/profile').then(function(r){
+        if(r.success){window.location.href='/dashboard'+window.location.search}
+        else{clearAuth()}
+      }).catch(function(){clearAuth()});
+    }
+  })();
   var currentTab='phone',showName=false;
   function switchTab(tab){
     currentTab=tab;
@@ -491,8 +500,9 @@ app.get('/dashboard', (c) => {
   const zh = lang !== 'en'
 
   const lightMap: Record<string, string> = {
-    '#3B82F6': '#DBEAFE', '#5B6ECF': '#e8eeff', '#6366F1': '#E0E7FF',
-    '#3D8F83': '#e2f5f1', '#8B5CF6': '#EDE9FE', '#EF4444': '#FEE2E2'
+    '#3B82F6': '#DBEAFE', '#3D8F83': '#e0f2ee', '#6366F1': '#E0E7FF',
+    '#2d7a6e': '#d5ede8', '#8B5CF6': '#EDE9FE', '#EF4444': '#FEE2E2',
+    '#5B6ECF': '#e8eeff'
   }
 
   const connectsHTML = t.connects.map(cn => {
@@ -569,19 +579,19 @@ app.get('/dashboard', (c) => {
     <!-- My Deals — Enhanced -->
     <div class="reveal stagger-2">
       <div class="section-heading" style="margin-bottom:14px;">
-        <div class="section-icon" style="background:linear-gradient(135deg,#d0d8f8,#5B6ECF);"><i class="fas fa-briefcase" style="font-size:13px;color:#fff;"></i></div>
+        <div class="section-icon" style="background:linear-gradient(135deg,#7DD4C7,#3D8F83);"><i class="fas fa-briefcase" style="font-size:13px;color:#fff;"></i></div>
         <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);">${t.dashboard.dealSection}</h2>
       </div>
 
       <!-- Tabs: Initiated / Participated -->
       <div class="deal-tabs-bar">
         <button class="deal-tab-v2 active" id="dtab-init" onclick="switchDealTab('init')">
-          <i class="fas fa-rocket" style="font-size:11px;color:#5B6ECF;"></i>${t.dashboard.initiated}
-          <span class="deal-tab-count" id="count-init" style="background:rgba(79,100,210,0.10);color:#5B6ECF;"></span>
+          <i class="fas fa-rocket" style="font-size:11px;color:#3D8F83;"></i>${t.dashboard.initiated}
+          <span class="deal-tab-count" id="count-init" style="background:rgba(61,143,131,0.10);color:#3D8F83;"></span>
         </button>
         <button class="deal-tab-v2" id="dtab-part" onclick="switchDealTab('part')">
-          <i class="fas fa-search-dollar" style="font-size:11px;color:#3D8F83;"></i>${t.dashboard.participated}
-          <span class="deal-tab-count" id="count-part" style="background:rgba(93,196,179,0.10);color:#3D8F83;"></span>
+          <i class="fas fa-search-dollar" style="font-size:11px;color:#2d7a6e;"></i>${t.dashboard.participated}
+          <span class="deal-tab-count" id="count-part" style="background:rgba(45,122,110,0.10);color:#2d7a6e;"></span>
         </button>
       </div>
       <div id="deal-list" style="margin-bottom:40px;"></div>
@@ -633,15 +643,15 @@ app.get('/dashboard', (c) => {
   var LANG=getLang();
   var tt=function(z,e){return LANG==='en'?e:z};
   var STATUS_MAP={draft:tt('草稿','Draft'),pending:tt('审核中','Pending'),live:tt('招募中','Live'),closed:tt('已关闭','Closed'),matched:tt('已匹配','Matched')};
-  var STATUS_COLOR={draft:'#86868b',pending:'#5B6ECF',live:'#34c759',closed:'#86868b',matched:'#6366F1'};
-  var STATUS_BG={draft:'rgba(134,134,139,0.08)',pending:'rgba(79,100,210,0.08)',live:'rgba(52,199,89,0.08)',closed:'rgba(134,134,139,0.08)',matched:'rgba(99,102,241,0.08)'};
+  var STATUS_COLOR={draft:'#86868b',pending:'#3D8F83',live:'#34c759',closed:'#86868b',matched:'#6366F1'};
+  var STATUS_BG={draft:'rgba(134,134,139,0.08)',pending:'rgba(61,143,131,0.08)',live:'rgba(52,199,89,0.08)',closed:'rgba(134,134,139,0.08)',matched:'rgba(99,102,241,0.08)'};
   var PROGRESS_MAP={draft:15,pending:35,live:65,closed:100,matched:100};
   var INDUSTRY_ICONS={'餐饮':'fa-utensils','零售':'fa-store','健身':'fa-dumbbell','茶饮':'fa-mug-hot','默认':'fa-briefcase'};
-  var INDUSTRY_COLORS={'餐饮':'#5B6ECF','零售':'#6366F1','健身':'#3D8F83','茶饮':'#8B5CF6','默认':'#5DC4B3'};
+  var INDUSTRY_COLORS={'餐饮':'#3D8F83','零售':'#6366F1','健身':'#2d7a6e','茶饮':'#8B5CF6','默认':'#5DC4B3'};
 
   var ROLES={
-    initiator:{name:tt('发起机会','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator',tagColor:'#5B6ECF',tagBg:'rgba(79,100,210,0.12)'},
-    participant:{name:tt('参与机会','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant',tagColor:'#3D8F83',tagBg:'rgba(93,196,179,0.12)'},
+    initiator:{name:tt('发起机会','Originator'),icon:'fa-rocket',desc:tt('以融资者身份发起投资机会，上传经营数据','Originate deals as a fundraiser, upload business data'),action:tt('去发起机会','Originate a Deal'),target:tt('发起通','Originate Connect'),gradient:'ic-initiator',tagColor:'#3D8F83',tagBg:'rgba(61,143,131,0.12)'},
+    participant:{name:tt('参与机会','Participant'),icon:'fa-search-dollar',desc:tt('以投资者身份浏览、筛选和参与投资机会','Browse, filter, and participate in deals'),action:tt('去看机会','Browse Deals'),target:tt('参与通','Deal Connect'),gradient:'ic-participant',tagColor:'#2d7a6e',tagBg:'rgba(45,122,110,0.12)'},
     organization:{name:tt('机构管理','Institution'),icon:'fa-building',desc:tt('以机构身份批量管理机会，自定义工作流','Manage deals at scale with custom workflows'),action:tt('进入机构台','Org Workspace'),target:tt('全部通','All Connects'),gradient:'ic-organization',tagColor:'#6366F1',tagBg:'rgba(99,102,241,0.12)'}
   };
 
@@ -689,8 +699,8 @@ app.get('/dashboard', (c) => {
     var liveDeals=initiatedDeals.concat(participatedDeals).filter(function(d){return d.status==='live'}).length;
     var items=[
       {label:tt('解锁角色','Roles'),value:user.identities.length,max:3,icon:'fa-fingerprint',color:'#5DC4B3',bg:'rgba(93,196,179,0.12)'},
-      {label:tt('发起机会','Originated'),value:initiatedDeals.length,max:10,icon:'fa-rocket',color:'#5B6ECF',bg:'rgba(79,100,210,0.12)'},
-      {label:tt('参与机会','Participated'),value:participatedDeals.length,max:10,icon:'fa-search-dollar',color:'#3D8F83',bg:'rgba(93,196,179,0.12)'},
+      {label:tt('发起机会','Originated'),value:initiatedDeals.length,max:10,icon:'fa-rocket',color:'#3D8F83',bg:'rgba(61,143,131,0.12)'},
+      {label:tt('参与机会','Participated'),value:participatedDeals.length,max:10,icon:'fa-search-dollar',color:'#2d7a6e',bg:'rgba(45,122,110,0.12)'},
       {label:tt('招募中','Live Deals'),value:liveDeals,max:totalDeals||1,icon:'fa-signal',color:'#32ade6',bg:'rgba(50,173,230,0.12)'},
     ];
     c.innerHTML=items.map(function(s){
@@ -774,8 +784,8 @@ app.get('/dashboard', (c) => {
 
       return '<div class="deal-card-v2">'+
         '<div class="deal-card-header">'+
-          '<div class="deal-card-icon" style="background:linear-gradient(135deg,'+(isInit?'#e8eeff,#9aa8e6':'#e2f5f1,#8dd5c7')+');">'+
-            '<i class="fas '+(isInit?'fa-rocket':'fa-search-dollar')+'" style="font-size:16px;color:'+(isInit?'#4a5baf':'#2d7a6e')+';"></i>'+
+          '<div class="deal-card-icon" style="background:linear-gradient(135deg,'+(isInit?'#e0f2ee,#5DC4B3':'#d5ede8,#49A89A')+');">'+
+            '<i class="fas '+(isInit?'fa-rocket':'fa-search-dollar')+'" style="font-size:16px;color:'+(isInit?'#2d6b5f':'#1f5e54')+';"></i>'+
           '</div>'+
           '<div class="deal-card-title-wrap">'+
             '<div class="deal-card-title">'+d.title+'</div>'+
@@ -788,9 +798,9 @@ app.get('/dashboard', (c) => {
         // Tags row
         '<div class="deal-card-tags">'+
           '<span class="deal-tag" style="background:'+indColor+'12;color:'+indColor+';border:1px solid '+indColor+'18;"><i class="fas '+indIcon+'" style="font-size:9px;"></i>'+d.industry+'</span>'+
-          '<span class="deal-tag" style="background:rgba(79,100,210,0.06);color:#5B6ECF;border:1px solid rgba(79,100,210,0.10);"><i class="fas fa-coins" style="font-size:9px;"></i>'+d.amount+'</span>'+
+          '<span class="deal-tag" style="background:rgba(61,143,131,0.06);color:#3D8F83;border:1px solid rgba(61,143,131,0.10);"><i class="fas fa-coins" style="font-size:9px;"></i>'+d.amount+'</span>'+
           '<span class="deal-tag" style="background:rgba(99,102,241,0.06);color:#6366F1;border:1px solid rgba(99,102,241,0.10);"><i class="fas fa-clock" style="font-size:9px;"></i>'+d.period+'</span>'+
-          (partCount>0?'<span class="deal-tag" style="background:rgba(93,196,179,0.06);color:#3D8F83;border:1px solid rgba(93,196,179,0.10);"><i class="fas fa-users" style="font-size:9px;"></i>'+partCount+tt(' 参与',' joined')+'</span>':'')+
+          (partCount>0?'<span class="deal-tag" style="background:rgba(45,122,110,0.06);color:#2d7a6e;border:1px solid rgba(45,122,110,0.10);"><i class="fas fa-users" style="font-size:9px;"></i>'+partCount+tt(' 参与',' joined')+'</span>':'')+
         '</div>'+
         // Progress bar
         '<div class="deal-progress-wrap">'+
