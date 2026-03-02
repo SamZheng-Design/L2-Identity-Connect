@@ -1,82 +1,92 @@
-# 身份通 Identity Connect — V12 主操作台版
+# 身份通 Identity Connect — V12.1 Premium Command Center
 
-## 项目概述
-- **名称**: 身份通 (Identity Connect)
-- **定位**: 滴灌通9通产品的统一登录入口 + 主操作台 + 路由中枢
-- **版本**: V12 Command Center Edition
-- **合规**: MicroConnect Product Bible V3.0
+## Project Overview
+- **Name**: Identity Connect 身份通
+- **Goal**: 滴灌通9通产品的统一登录入口 + 主操作台 + 路由中枢
+- **Version**: V12.1 — Premium Command Center Edition
+- **Architecture**: Modular (core.ts + login.ts + dashboard.ts + pages.ts)
 
 ## URLs
 - **Production**: https://l2-identity-connect.pages.dev
 - **GitHub**: https://github.com/SamZheng-Design/L2-Identity-Connect (branch: v12)
 
-## V12 核心升级
+## V12.1 Upgrade Summary
 
-### 1. 统一登录门户 (/)
-- 所有9个通产品的唯一登录入口
-- 登录页展示9通产品环，明确传达"一次登录，全通通行"
-- 手机号/邮箱双模式登录
-- JWT Token 认证，支持跨通 SSO
+### Login Page (/)
+- 9通环形轨道动画 — 9个产品节点围绕身份通Logo旋转
+- 信任徽章 — SSO / E2E加密 / RBAC / 合规审计
+- 融资方/投资方 双Demo标识
+- 品牌视觉全面升级
 
-### 2. 主操作台 (/dashboard) — Command Center
-- **全局概览**: 项目总数、招募中、活跃通道、解锁角色 4大指标
-- **快捷操作**: 根据已解锁角色动态生成操作入口
-- **项目管线**: 跨通 Pipeline 可视化，8阶段全生命周期追踪
-  - 发起 → 评估 → 风控 → 参与 → 条款 → 合约 → 结算 → 履约
-  - 每个阶段显示 completed / active / pending / blocked 状态
-- **身份角色**: 发起角色、参与角色、机构身份的一键解锁
-- **认证主体**: 已认证企业及相关deal展示
-- **九通产品矩阵**: 按角色分类的9通导航网格
-  - 共用 (身份通)
-  - 融资方 (发起通)
-  - 投资方 (评估通、风控通、参与通)
-  - 协同 (条款通、合约通、结算通、履约通)
+### Command Center (/dashboard)
+- **可交互Pipeline** — 点击任意阶段节点，通过SSO跳转到对应通
+- **Deal详情弹窗** — 点击项目卡片，弹窗展示详情+进度+下一步
+- **Activity Timeline** — 从全部Deal Pipeline提取最近动态
+- **Pipeline过滤器** — 全部/进行中/已完成 Tab筛选
+- **进度条** — 每个Deal底部渐变进度条
+- **Connect计数** — 九通卡片显示涉及Deal数量
+- **总金额统计** — Stats区域新增总金额指标
+- **Navbar升级** — 通知铃铛(红点)+设置入口
 
-### 3. 主体认证 (/entity-verify)
-- 公司/项目主体认证表单
-- 自动关联机构身份
+### Account Settings (/settings)
+- 个人信息管理
+- 安全设置（密码修改/2FA开关/登录提醒）
+- 通知偏好（项目动态/系统通知/邮件通知）
+- 安全日志（登录记录/操作记录）
 
-## 九通产品矩阵
+### Notification Center (/notifications)
+- 5种通知类型（deal/system/role/entity/security）
+- 未读/全部 筛选
+- 一键全部已读
 
-| 通 | 英文名 | ID | 角色 | 状态 |
-|---|---|---|---|---|
-| 身份通 | Identity Connect | identity | 共用 | Live |
-| 发起通 | Originate Connect | application | 融资方 | Beta |
-| 评估通 | Assess Connect | assess | 投资方 | Beta |
-| 风控通 | Risk Connect | risk | 投资方 | Live |
-| 参与通 | Deal Connect | opportunity | 投资方 | Live |
-| 条款通 | Terms Connect | terms | 协同 | Coming |
-| 合约通 | Contract Connect | contract | 协同 | Beta |
-| 结算通 | Settlement Connect | settlement | 协同 | Coming |
-| 履约通 | Performance Connect | performance | 协同 | Coming |
+### Entity Verify (/entity-verify)
+- 统一设计语言
+- 返回操作台导航
 
-## API 端点
+### Cross-Connect SSO
+- 每个通配置 externalUrl
+- 点击跳转前先获取SSO Token
+- 带参跳转 `?sso=<token>`
 
+## Demo Accounts
+| 角色 | 账号 | 凭证 |
+|------|------|------|
+| 融资方 | 13800001234 | 验证码 123456 |
+| 投资方 | investor@fund.com | 密码 demo123 |
+
+## Tech Stack
+- Hono + TypeScript on Cloudflare Pages
+- Vite build, Wrangler dev/deploy
+- CDN: Tailwind-free (custom CSS), FontAwesome, Google Fonts
+- Design System: Product Bible V3.0 compliant
+
+## File Structure
+```
+src/
+├── index.tsx     — Entry point, API routes, page routing
+├── core.ts       — JWT, data models, demo data, i18n, shared components
+├── login.ts      — Login page with orbit ring animation
+├── dashboard.ts  — Command Center with pipeline, timeline, modal
+└── pages.ts      — Settings, Notifications, Entity Verify
+public/static/
+├── style.css     — V12.1 Premium Design System
+└── favicon.svg   — Brand icon
+```
+
+## API Endpoints
 | Method | Path | Description |
-|---|---|---|
-| POST | /api/auth/verify-code | 发送手机验证码 |
-| POST | /api/auth/register | 注册新用户 |
-| POST | /api/auth/login | 登录 |
-| POST | /api/auth/sso-token | 生成跨通SSO令牌 |
-| GET | /api/user/profile | 获取用户信息 |
-| POST | /api/user/unlock | 解锁角色身份 |
-| POST | /api/entity/verify | 认证机构主体 |
-| GET | /api/deals/all | 获取全部相关deal(含Pipeline) |
-| GET | /api/deals/initiated | 获取发起的deal |
-| GET | /api/deals/participated | 获取参与的deal |
+|--------|------|-------------|
+| POST | /api/auth/verify-code | Send verification code |
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Login |
+| POST | /api/auth/sso-token | Generate SSO token for cross-connect |
+| GET | /api/user/profile | Get user profile |
+| POST | /api/user/unlock | Unlock identity role |
+| POST | /api/entity/verify | Verify entity/org role |
+| GET | /api/deals/all | Get all related deals with pipeline |
 
-## Demo 账号
-- **融资者(张三)**: 手机 `13800001234` / 验证码 `123456`
-- **投资者(李四)**: 邮箱 `investor@fund.com` / 密码 `demo123`
-
-## 技术架构
-- **Framework**: Hono + TypeScript + SSR
-- **Deployment**: Cloudflare Pages
-- **Design System**: Apple-inspired, Brand #5DC4B3, 严禁纯黑
-- **Authentication**: JWT (24h有效期), SSO跨通支持
-- **Data Flow**: 事件驱动 Event Bus (demo阶段 in-memory)
-
-## 部署
+## Deployment
 - **Platform**: Cloudflare Pages
-- **Status**: ✅ Active
-- **Last Updated**: 2026-03-01
+- **Project**: l2-identity-connect
+- **Status**: Active
+- **Last Updated**: 2026-03-02
