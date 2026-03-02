@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════
-   Identity Connect 身份通 — V12 Command Center Edition
+   Identity Connect 身份通 — V12.1 Premium Command Center
    统一登录门户 + 主操作台 + 9通导航中枢 + 跨通Pipeline
    MicroConnect Product Bible V3.0 Compliant
-   2026-03 · Apple-Inspired Precision
+   2026-03 · Apple-Inspired Precision · Sam Edition
    ═══════════════════════════════════════════════════════ */
 
 /* ========== 1. Design Token System ========== */
@@ -75,10 +75,31 @@ body {
 @keyframes shimmer { 0% { background-position: -400% 0; } 100% { background-position: 400% 0; } }
 @keyframes particleFloat { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(-16px); opacity: 0.85; } }
 
+/* V12.1 NEW: Orbit ring rotation for login page */
+@keyframes orbit-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes orbit-counter { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+@keyframes orbit-float {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.08); filter: brightness(1.15); }
+}
+@keyframes ripple-out {
+  0% { box-shadow: 0 0 0 0 rgba(93,196,179,0.3); }
+  100% { box-shadow: 0 0 0 20px rgba(93,196,179,0); }
+}
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slide-in-left { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes count-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modal-bg-in { from { opacity: 0; } to { opacity: 1; } }
+
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo); }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 .stagger-1 { transition-delay: 0.06s; } .stagger-2 { transition-delay: 0.12s; }
 .stagger-3 { transition-delay: 0.18s; } .stagger-4 { transition-delay: 0.24s; } .stagger-5 { transition-delay: 0.30s; }
+.stagger-6 { transition-delay: 0.36s; } .stagger-7 { transition-delay: 0.42s; }
 
 /* ========== 4. Hero Dark ========== */
 .hero-dark {
@@ -205,7 +226,61 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .toast.error { background: rgba(254,242,242,0.96); color: #991b1b; border: 1px solid rgba(255,55,95,0.2); }
 .toast.info { background: rgba(240,253,250,0.96); color: #065f46; border: 1px solid rgba(93,196,179,0.2); }
 
-/* ========== 12. Profile Hero ========== */
+/* ========== 12. V12.1 Login Orbit Ring ========== */
+.orbit-container {
+  position: relative; width: 280px; height: 280px; margin: 0 auto 28px;
+}
+.orbit-ring {
+  position: absolute; inset: 0; border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 50%; animation: orbit-rotate 60s linear infinite;
+}
+.orbit-ring-2 {
+  position: absolute; inset: 20px; border: 1px dashed rgba(255,255,255,0.03);
+  border-radius: 50%; animation: orbit-rotate 90s linear infinite reverse;
+}
+.orbit-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 5; text-align: center;
+}
+.orbit-node {
+  position: absolute; width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  animation: orbit-counter 60s linear infinite;
+  transition: all 0.35s var(--ease-spring); cursor: default;
+  backdrop-filter: blur(8px);
+}
+.orbit-node:hover {
+  background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18);
+  transform: scale(1.12); z-index: 10;
+}
+.orbit-node-char {
+  font-size: 14px; font-weight: 700; line-height: 1;
+  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+}
+.orbit-node-label {
+  font-size: 6px; font-weight: 500; color: rgba(255,255,255,0.30);
+  margin-top: 2px; white-space: nowrap; letter-spacing: 0.02em;
+}
+
+/* Orbit trust badges */
+.trust-badges {
+  display: flex; justify-content: center; gap: 24px; margin-top: 20px;
+  animation: fade-in 1s 0.5s both;
+}
+.trust-badge {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  opacity: 0.45; transition: opacity 0.3s;
+}
+.trust-badge:hover { opacity: 0.75; }
+.trust-badge-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+}
+.trust-badge-label { font-size: 8px; color: rgba(255,255,255,0.25); font-weight: 500; letter-spacing: 0.03em; }
+
+/* ========== 13. Profile Hero ========== */
 .profile-hero {
   background: var(--gradient-hero); position: relative; overflow: hidden; padding: 80px 24px 72px;
 }
@@ -238,11 +313,25 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .profile-tag:hover { transform: translateY(-1px); }
 .profile-actions { display: flex; align-items: center; gap: 8px; padding-top: 8px; }
 
+/* V12.1 — Nav action buttons in hero */
+.hero-nav-actions {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.hero-nav-btn {
+  display: inline-flex; align-items: center; gap: 5px; padding: 8px 14px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; color: rgba(255,255,255,0.55); font-size: 11px; font-weight: 500;
+  cursor: pointer; text-decoration: none; transition: all 0.25s var(--ease-smooth);
+  font-family: inherit;
+}
+.hero-nav-btn:hover { background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.15); }
+.hero-nav-btn i { font-size: 10px; }
+
 /* Stats Grid */
 .profile-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .stat-ring-card {
   background: rgba(255,255,255,0.03); border: 0.5px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 20px 12px;
-  text-align: center; backdrop-filter: blur(20px); transition: all 0.35s var(--ease-spring);
+  text-align: center; backdrop-filter: blur(20px); transition: all 0.35s var(--ease-spring); cursor: pointer;
 }
 .stat-ring-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
 .stat-ring-visual { position: relative; width: 60px; height: 60px; margin: 0 auto 10px; }
@@ -250,10 +339,10 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .stat-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 4; }
 .stat-ring-fill { fill: none; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 150.8; transition: stroke-dashoffset 1s var(--ease-out-expo); }
 .stat-ring-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-.stat-ring-value { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 3px; }
+.stat-ring-value { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 3px; animation: count-up 0.6s var(--ease-out-expo) both; }
 .stat-ring-label { font-size: 10.5px; color: rgba(255,255,255,0.35); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
-/* ========== 13. Command Center Main ========== */
+/* ========== 14. Command Center Main ========== */
 .cmd-main { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
 .section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; margin-top: 32px; }
@@ -261,7 +350,19 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .section-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
 .divider { height: 0.5px; margin: 40px 0; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent); }
 
-/* ========== 14. Quick Actions ========== */
+/* V12.1 Section tabs */
+.section-tabs {
+  display: flex; align-items: center; gap: 4px; margin-left: auto;
+  background: rgba(0,0,0,0.03); border-radius: 8px; padding: 3px;
+}
+.section-tab {
+  padding: 5px 14px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  color: var(--text-tertiary); cursor: pointer; border: none; background: none;
+  transition: all 0.2s; font-family: inherit;
+}
+.section-tab.active { background: #fff; color: var(--text-primary); box-shadow: var(--shadow-xs); }
+
+/* ========== 15. Quick Actions ========== */
 .quick-actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 .quick-action-card {
   display: flex; align-items: center; gap: 14px; padding: 18px 20px;
@@ -276,11 +377,11 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .qa-arrow { font-size: 12px; color: var(--text-quaternary); flex-shrink: 0; transition: transform 0.25s; }
 .quick-action-card:hover .qa-arrow { transform: translateX(3px); color: var(--brand-dark); }
 
-/* ========== 15. Pipeline Cards ========== */
+/* ========== 16. Pipeline Cards V12.1 ========== */
 .pipeline-card {
   background: rgba(255,255,255,0.96); border: 0.5px solid rgba(0,0,0,0.05); border-radius: 20px;
   padding: 24px; margin-bottom: 14px; box-shadow: var(--shadow-card);
-  transition: all 0.35s var(--ease-spring); position: relative; overflow: hidden;
+  transition: all 0.35s var(--ease-spring); position: relative; overflow: hidden; cursor: pointer;
 }
 .pipeline-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -301,8 +402,9 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 
 .pipeline-node {
   display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0;
-  position: relative; z-index: 1;
+  position: relative; z-index: 1; cursor: pointer; transition: transform 0.2s;
 }
+.pipeline-node:hover { transform: scale(1.08); }
 .pipeline-dot {
   width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
   transition: all 0.3s var(--ease-spring); position: relative;
@@ -332,7 +434,81 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
   font-size: 12px; color: var(--text-secondary); font-weight: 500;
 }
 
-/* ========== 16. Role Cards V3 ========== */
+/* V12.1 Pipeline progress bar */
+.pipeline-progress-bar {
+  width: 100%; height: 3px; background: rgba(0,0,0,0.04); border-radius: 2px; margin-top: 14px; overflow: hidden;
+}
+.pipeline-progress-fill {
+  height: 100%; border-radius: 2px; transition: width 0.8s var(--ease-out-expo);
+  background: linear-gradient(90deg, var(--brand), #6366F1);
+}
+
+/* ========== 17. Activity Timeline V12.1 ========== */
+.timeline-list { position: relative; padding-left: 24px; }
+.timeline-list::before {
+  content: ''; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 1.5px;
+  background: linear-gradient(180deg, rgba(93,196,179,0.2), rgba(0,0,0,0.04));
+}
+.timeline-item {
+  position: relative; padding: 12px 16px; margin-bottom: 8px;
+  background: rgba(255,255,255,0.95); border: 0.5px solid rgba(0,0,0,0.05);
+  border-radius: 12px; transition: all 0.25s var(--ease-spring);
+  animation: slide-in-right 0.4s var(--ease-out-expo) both;
+}
+.timeline-item:nth-child(1) { animation-delay: 0.05s; }
+.timeline-item:nth-child(2) { animation-delay: 0.10s; }
+.timeline-item:nth-child(3) { animation-delay: 0.15s; }
+.timeline-item:nth-child(4) { animation-delay: 0.20s; }
+.timeline-item:nth-child(5) { animation-delay: 0.25s; }
+.timeline-item:hover { transform: translateX(4px); box-shadow: var(--shadow-sm); }
+.timeline-dot {
+  position: absolute; left: -20px; top: 16px; width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid #fff;
+}
+.timeline-dot-completed { background: var(--success); }
+.timeline-dot-active { background: var(--brand); animation: pulse-dot 2s infinite; }
+.timeline-dot-pending { background: var(--text-quaternary); }
+.timeline-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+.timeline-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.timeline-time { font-size: 10px; color: var(--text-quaternary); font-weight: 500; white-space: nowrap; }
+.timeline-desc { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; }
+.timeline-tags { display: flex; gap: 4px; margin-top: 6px; }
+.timeline-tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 600; }
+
+/* ========== 18. Deal Detail Modal V12.1 ========== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+  animation: modal-bg-in 0.2s ease both;
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+  width: 100%; max-width: 620px; max-height: 85vh; overflow-y: auto; background: #fff;
+  border-radius: 24px; box-shadow: 0 24px 80px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+  animation: modal-in 0.35s var(--ease-out-expo) both;
+}
+.modal-header {
+  position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+  padding: 24px 28px 16px; border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05);
+  color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.modal-close:hover { background: rgba(0,0,0,0.10); }
+.modal-body { padding: 20px 28px 28px; }
+.modal-section { margin-bottom: 20px; }
+.modal-section-title { font-size: 12px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.modal-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.modal-info-item { padding: 12px 14px; background: var(--bg-page); border-radius: 12px; }
+.modal-info-label { font-size: 10px; color: var(--text-quaternary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.modal-info-value { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; }
+.modal-footer .btn-primary { flex: 1; justify-content: center; }
+
+/* ========== 19. Role Cards V3 ========== */
 .roles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 .role-card-v3 {
   display: flex; align-items: center; gap: 14px; padding: 18px 20px;
@@ -351,7 +527,7 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 }
 .role-unlock-btn:hover { background: rgba(93,196,179,0.12); border-style: solid; transform: scale(1.08); }
 
-/* ========== 17. Connect Grid V3 ========== */
+/* ========== 20. Connect Grid V3 ========== */
 .connects-grid-v3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
 .connect-card-v3 {
   background: rgba(255,255,255,0.96); border: 0.5px solid rgba(0,0,0,0.05); border-radius: 18px;
@@ -374,6 +550,13 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .connect-card-body { margin-bottom: 12px; }
 .connect-card-footer { padding-top: 10px; border-top: 0.5px solid rgba(0,0,0,0.04); }
 
+/* V12.1 Connect deal count */
+.connect-deal-count {
+  display: inline-flex; align-items: center; gap: 3px; margin-left: 4px;
+  padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 700;
+  background: rgba(93,196,179,0.08); color: var(--brand-dark);
+}
+
 .connect-icon-v2 { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.06)); }
 .connect-icon-v2 svg { border-radius: 12px; overflow: hidden; }
 .connect-card-v3:hover:not(.disabled) .connect-icon-v2 { transform: scale(1.08) rotate(-2deg); }
@@ -383,14 +566,14 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .status-beta { background: rgba(93,196,179,0.10); color: var(--brand-dark); }
 .status-coming { background: rgba(0,0,0,0.03); color: var(--text-quaternary); }
 
-/* ========== 18. Deal Status ========== */
+/* ========== 21. Deal Status ========== */
 .deal-status-pill {
   display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px;
   font-size: 10.5px; font-weight: 700; white-space: nowrap; flex-shrink: 0;
 }
 .deal-status-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-/* ========== 19. Entity Cards ========== */
+/* ========== 22. Entity Cards ========== */
 .entity-card-v2 {
   background: rgba(255,255,255,0.96); border: 0.5px solid rgba(0,0,0,0.05); border-radius: 16px;
   padding: 18px 22px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
@@ -421,19 +604,102 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 }
 .entity-enter-btn:hover { background: rgba(99,102,241,0.12); transform: translateX(2px); }
 
-/* ========== 20. Micro Badge ========== */
+/* ========== 23. Micro Badge ========== */
 .micro-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 500; }
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 600; }
 .badge-brand { background: linear-gradient(135deg, rgba(93,196,179,0.15), rgba(73,168,154,0.15)); color: var(--color-primary); }
 
-/* ========== 21. Upload Zone ========== */
+/* ========== 24. Upload Zone ========== */
 .upload-zone {
   border: 1.5px dashed rgba(0,0,0,0.08); border-radius: var(--r-lg); padding: 32px; text-align: center;
   cursor: pointer; transition: all 350ms var(--ease-spring); background: var(--brand-50);
 }
 .upload-zone:hover { border-color: rgba(93,196,179,0.35); background: var(--brand-100); transform: translateY(-2px); }
 
-/* ========== 22. Footer ========== */
+/* ========== 25. Account Settings V12.1 ========== */
+.settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; max-width: 900px; margin: 0 auto; }
+.settings-sidebar {
+  position: sticky; top: 72px; height: fit-content;
+}
+.settings-nav { display: flex; flex-direction: column; gap: 2px; }
+.settings-nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-radius: 10px; font-size: 13px; font-weight: 500; color: var(--text-secondary);
+  cursor: pointer; transition: all 0.2s; text-decoration: none; border: none; background: none;
+  font-family: inherit; width: 100%; text-align: left;
+}
+.settings-nav-item:hover { background: rgba(93,196,179,0.04); color: var(--text-primary); }
+.settings-nav-item.active { background: rgba(93,196,179,0.08); color: var(--brand-dark); font-weight: 600; }
+.settings-nav-item i { width: 16px; text-align: center; font-size: 12px; }
+
+.settings-section { margin-bottom: 24px; }
+.settings-card {
+  background: #fff; border: 0.5px solid rgba(0,0,0,0.06); border-radius: 16px;
+  overflow: hidden; box-shadow: var(--shadow-card);
+}
+.settings-card-header { padding: 18px 22px 14px; border-bottom: 0.5px solid rgba(0,0,0,0.04); }
+.settings-card-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.settings-card-desc { font-size: 12px; color: var(--text-tertiary); }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 22px; border-bottom: 0.5px solid rgba(0,0,0,0.03);
+  transition: background 0.2s;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row:hover { background: rgba(0,0,0,0.01); }
+.settings-row-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.settings-row-value { font-size: 13px; color: var(--text-tertiary); }
+.settings-row-action {
+  padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border-medium); background: none; color: var(--text-secondary);
+  cursor: pointer; transition: all 0.2s; font-family: inherit;
+}
+.settings-row-action:hover { border-color: var(--brand); color: var(--brand-dark); }
+
+/* V12.1 Toggle switch */
+.toggle-switch {
+  position: relative; width: 42px; height: 24px; border-radius: 12px;
+  background: rgba(0,0,0,0.08); cursor: pointer; transition: background 0.3s;
+  border: none; flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--brand); }
+.toggle-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: transform 0.3s var(--ease-spring);
+}
+.toggle-switch.on::after { transform: translateX(18px); }
+
+/* ========== 26. Notification Center V12.1 ========== */
+.notif-list { display: flex; flex-direction: column; gap: 8px; }
+.notif-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px;
+  background: #fff; border: 0.5px solid rgba(0,0,0,0.05); border-radius: 14px;
+  transition: all 0.25s var(--ease-spring); box-shadow: var(--shadow-xs);
+}
+.notif-item:hover { transform: translateX(2px); box-shadow: var(--shadow-sm); }
+.notif-item.unread { background: rgba(93,196,179,0.02); border-color: rgba(93,196,179,0.10); }
+.notif-icon {
+  width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.notif-content { flex: 1; min-width: 0; }
+.notif-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.notif-desc { font-size: 12px; color: var(--text-tertiary); line-height: 1.5; }
+.notif-time { font-size: 10px; color: var(--text-quaternary); margin-top: 4px; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex-shrink: 0; margin-top: 4px; }
+
+/* ========== 27. Security Log V12.1 ========== */
+.security-log-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.03);
+}
+.security-log-item:last-child { border-bottom: none; }
+.security-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+.security-info { flex: 1; }
+.security-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.security-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+
+/* ========== 28. Footer ========== */
 .footer-aurora { background: var(--gradient-aurora); position: relative; overflow: hidden; }
 .footer-aurora::before {
   content: ''; position: absolute; inset: 0;
@@ -443,21 +709,21 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
 .footer-link { color: rgba(255,255,255,0.30); font-size: 12px; text-decoration: none; transition: color 250ms; }
 .footer-link:hover { color: rgba(255,255,255,0.60); }
 
-/* ========== 23. Spinner ========== */
+/* ========== 29. Spinner ========== */
 .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
 
-/* ========== 24. Scrollbar ========== */
+/* ========== 30. Scrollbar ========== */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.10); border-radius: 4px; }
 * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.10) transparent; }
 ::selection { background: rgba(93,196,179,0.20); }
 
-/* ========== 25. Accessibility ========== */
+/* ========== 31. Accessibility ========== */
 :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: var(--r-sm); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
-/* ========== 26. Responsive ========== */
+/* ========== 32. Responsive ========== */
 @media (max-width: 768px) {
   .navbar, .navbar-dark { height: 48px; }
   .nav-inner { padding: 0 16px; }
@@ -482,6 +748,20 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
   .toast { left: 16px; right: 16px; transform: translateX(0) translateY(-16px); width: auto; max-width: none; }
   .toast.show { transform: translateX(0) translateY(0); }
   .cmd-badge { display: none; }
+  .hero-nav-actions { flex-wrap: wrap; }
+  .orbit-container { width: 220px; height: 220px; }
+  .orbit-node { width: 34px; height: 34px; border-radius: 10px; }
+  .orbit-node-char { font-size: 12px; }
+  .orbit-node-label { font-size: 5px; }
+  .settings-layout { grid-template-columns: 1fr; }
+  .settings-sidebar { position: static; }
+  .settings-nav { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 8px; }
+  .settings-nav-item { white-space: nowrap; padding: 8px 12px; }
+  .modal-content { max-width: 100%; margin: 12px; border-radius: 20px; }
+  .modal-header { padding: 20px 20px 14px; }
+  .modal-body { padding: 16px 20px 24px; }
+  .modal-info-grid { grid-template-columns: 1fr; }
+  .timeline-list { padding-left: 20px; }
 }
 @media (max-width: 480px) {
   .btn-primary { padding: 12px 20px; font-size: 14px; }
@@ -489,4 +769,8 @@ button:active { transform: scale(0.97); transition-duration: 0.08s; }
   .profile-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .entity-card-tags { display: none; }
   .connects-grid-v3 { grid-template-columns: repeat(2, 1fr); }
+  .trust-badges { gap: 16px; }
+  .orbit-container { width: 200px; height: 200px; }
+  .orbit-node { width: 30px; height: 30px; border-radius: 9px; }
+  .orbit-node-char { font-size: 11px; }
 }
